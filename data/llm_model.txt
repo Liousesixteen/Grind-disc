@@ -1,0 +1,2 @@
+# 可选：模型名，默认 gpt-4o-mini；DeepSeek 填 deepseek-chat
+deepseek-chat

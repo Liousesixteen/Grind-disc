@@ -1,0 +1,9 @@
+[Unit]
+Description=AI Trader - LHB retry (20:30)
+
+[Service]
+Type=oneshot
+User=trader
+WorkingDirectory=/srv/trading
+Environment=TZ=Asia/Shanghai
+ExecStart=/srv/trading/.venv/bin/python scripts/job_runner.py lhb

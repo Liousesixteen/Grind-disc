@@ -1,0 +1,69 @@
+:root{
+    --bg:#f5f6f8; --card:#ffffff; --line:#e3e6ec; --ink:#1c2027; --ink2:#4a5260;
+    --ink3:#7b8494; --up:#c0392b; --dn:#12876f; --flat:#8892a4;
+    --amber:#b7791f; --blue:#2b6cb0; --purple:#6b46c1;
+    --shadow:0 1px 2px rgba(16,24,40,.04),0 4px 16px rgba(16,24,40,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 22px 72px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:26px}
+  h1{font-size:26px;line-height:1.35;margin:0 0 10px;letter-spacing:-.3px}
+  .meta{font-size:13px;color:var(--ink3);display:flex;flex-wrap:wrap;gap:6px 16px}
+  .meta b{color:var(--ink2);font-weight:600}
+  h2{font-size:19px;margin:34px 0 14px;padding-left:11px;border-left:4px solid var(--ink);line-height:1.4}
+  h3{font-size:15.5px;margin:22px 0 10px;color:var(--ink)}
+  h4{font-size:14px;margin:16px 0 8px;color:var(--ink2)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:18px 20px;margin:14px 0;box-shadow:var(--shadow)}
+  .lead{background:linear-gradient(180deg,#fffdf6,#fff);border:1px solid #ecdfc0;
+    border-left:5px solid #b7791f}
+  .verdict{font-size:16.5px;line-height:1.8}
+  .verdict b{color:#8a4b0f}
+  .grid{display:grid;gap:12px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:760px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}}
+  .kpi{background:#fbfcfd;border:1px solid var(--line);border-radius:8px;padding:11px 13px}
+  .kpi .t{font-size:12px;color:var(--ink3);letter-spacing:.2px}
+  .kpi .v{font-size:19px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .kpi .s{font-size:12px;color:var(--ink3);margin-top:1px}
+  .up{color:var(--up)} .dn{color:var(--dn)} .fl{color:var(--flat)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0;
+    font-variant-numeric:tabular-nums}
+  th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:#f7f8fa;font-weight:600;color:var(--ink2);font-size:12.5px;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right}
+  .bar{position:relative;height:16px;background:#f0f2f5;border-radius:3px;overflow:hidden;min-width:110px}
+  .bar i{position:absolute;top:0;bottom:0;display:block;border-radius:3px}
+  .bar i.u{left:50%;background:var(--up)}
+  .bar i.d{right:50%;background:var(--dn)}
+  .bar em{position:absolute;left:50%;top:0;bottom:0;width:1px;background:#c9cfd8}
+  .tag{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:20px;
+    border:1px solid var(--line);color:var(--ink2);background:#fafbfc;white-space:nowrap}
+  .tag.a{border-color:#e6c9a8;background:#fdf6ec;color:#8a4b0f}
+  .tag.b{border-color:#cfe0f0;background:#f2f7fc;color:#225780}
+  .tag.c{border-color:#d9d2ee;background:#f6f3fd;color:#553c9a}
+  .tag.d{border-color:#e2e5ea;background:#f7f8fa;color:#6b7280}
+  .ok{color:#12876f;font-weight:700}
+  .part{color:#b7791f;font-weight:700}
+  .no{color:#c0392b;font-weight:700}
+  .miss{color:#8892a4;font-weight:700}
+  ul,ol{margin:8px 0 8px 22px;padding:0}
+  li{margin:5px 0}
+  .quote{border-left:3px solid #d8dde5;background:#fafbfc;padding:9px 14px;margin:10px 0;
+    color:var(--ink2);font-size:13.5px}
+  .warn{background:#fdf7f7;border:1px solid #f0d6d3;border-left:4px solid #c0392b;
+    border-radius:8px;padding:13px 16px;margin:14px 0}
+  .note{background:#f7f9fc;border:1px solid #e0e7f0;border-left:4px solid #2b6cb0;
+    border-radius:8px;padding:13px 16px;margin:14px 0;font-size:13.5px}
+  footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+    font-size:12.5px;color:var(--ink3)}
+  .disc{background:#fff;border:1px solid #e8d9d6;border-radius:8px;padding:14px 17px;
+    margin-top:26px;font-size:13px;color:#4a5260}
+  .src{font-size:12px;color:var(--ink3);margin-top:6px}
+  .mono{font-variant-numeric:tabular-nums}

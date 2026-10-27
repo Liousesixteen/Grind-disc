@@ -1,0 +1,8 @@
+# 反向代理 + 自动 HTTPS + BasicAuth
+board.example.com {
+    encode zstd gzip
+    basicauth {
+        trader $2a$14$REPLACE_WITH_CADDY_HASH
+    }
+    reverse_proxy 127.0.0.1:6060
+}

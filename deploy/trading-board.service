@@ -1,0 +1,18 @@
+[Unit]
+Description=AI Trader - Intraday Board
+After=network-online.target
+
+[Service]
+Type=simple
+User=trader
+WorkingDirectory=/srv/trading
+Environment=TZ=Asia/Shanghai
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/srv/trading/.venv/bin/python scripts/intraday_board.py --port 6060
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

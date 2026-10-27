@@ -1,0 +1,29 @@
+scripts/.tushare_token
+
+# Local credentials and authenticated sessions
+.env
+.env.*
+!.env.example
+data/llm_key.txt
+data/xq_cookie.txt
+*.pem
+*.key
+
+# Downloaded data, runtime state and local backups
+.venv/
+.workbuddy/
+cache/
+logs/
+work_dir/
+reports/
+data/wechat_exports/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+__pycache__/
+*.py[cod]
+.DS_Store
+*.log
+*.bak*
+*.tmp

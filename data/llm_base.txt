@@ -1,0 +1,2 @@
+# 可选：接口地址，默认 https://api.openai.com/v1；DeepSeek 填 https://api.deepseek.com/v1
+https://api.deepseek.com

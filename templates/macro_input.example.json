@@ -1,0 +1,12 @@
+{
+  "_说明": "基本面钟输入。用宏观库取数后照此格式落盘到 cache/macro/<YYYYMMDD>.json，再传给 --macro。缺字段就删掉那一行——脚本会渲染为「缺」，不用估值补齐。",
+  "asof": "2026-09",
+  "capacity_util": 73.1,
+  "inventory_yoy": 11.4,
+  "profit_yoy": 15.7,
+  "ppi_index": 105.0,
+  "m1_yoy": 3.2,
+  "afre_yoy": 7.1,
+  "pmi": 50.1,
+  "source": "国家统计局/中国人民银行（经宏观库）"
+}

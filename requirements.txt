@@ -1,0 +1,23 @@
+# AI顶级交易员 项目依赖清单
+# 安装方式（一律装进项目本地 .venv，禁止全局安装）：
+#   .venv/bin/pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+#
+# sdist 例外（沙箱/离线无法构建时的手工步骤，见 docs/环境与依赖.md）：
+#   jsonpath      —— 单文件模块，从 sdist 解出 jsonpath.py 放进 .venv/lib/python3.13/site-packages/
+#   py-mini-racer —— 用垫片 site-packages/py_mini_racer.py（仅 akshare 个别 cninfo 函数需要）
+
+requests
+openpyxl
+akshare==1.19.1
+beautifulsoup4
+lxml
+pandas
+curl_cffi
+html5lib
+xlrd
+tqdm
+tabulate
+decorator
+
+# Structured primary source; isolate installs inside this project venv.
+tushare==1.4.29

@@ -1,0 +1,9 @@
+[Unit]
+Description=LHB retry at 20:30
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 20:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

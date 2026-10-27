@@ -1,0 +1,10 @@
+[Unit]
+Description=AI Trader - Daily Increment (16:30)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=trader
+WorkingDirectory=/srv/trading
+Environment=TZ=Asia/Shanghai
+ExecStart=/srv/trading/.venv/bin/python scripts/job_runner.py daily

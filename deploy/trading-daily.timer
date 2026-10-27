@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily increment at 16:30 on trading days
+
+[Timer]
+OnCalendar=Mon..Fri *-*-* 16:30:00
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target
