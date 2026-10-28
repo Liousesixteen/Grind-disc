@@ -1,0 +1,14 @@
+[Unit]
+Description=Grind research dashboard on local port 6063
+After=network-online.target
+[Service]
+Type=simple
+WorkingDirectory=/srv/trading
+Environment=TZ=Asia/Shanghai
+Environment=PYTHONUNBUFFERED=1
+Environment=TRADING_MANAGED=1
+ExecStart=/srv/trading/.venv/bin/python scripts/product_service.py --port 6063
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=default.target

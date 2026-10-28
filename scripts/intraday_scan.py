@@ -131,6 +131,10 @@ def latest_pool_dir(pool_dir):
             s = json.load(open(os.path.join(p, "summary.json"), encoding="utf-8"))
         except Exception:
             continue
+        # A concurrent pool job writes summary before focus_index. Do not select
+        # half-published directories as a complete board input.
+        if not s.get('focus_index') or not os.path.isfile(os.path.join(p, 'pool_final.json')):
+            continue
         k = f"{s.get('data_date','')}/{s.get('run_at','')}"
         if k > key:
             best, key = p, k
@@ -145,17 +149,23 @@ def take_snapshot(dry_run, pool_dir):
         return rows, "模拟（缓存收盘数据，非实时）", [], True
     # 2026-10-27：腾讯 qt 升为主源——东财 push2 经常连不上，降到新浪后没有 OHLC，
     # 一字板/T字板/地天板全判不出来。腾讯 0.8s 拉全 5,576 只且带开高低。
+    from product_clock import market_coverage
+    expected = P._universe_codes()
+    rejected = []
     for src in ("tencent_qt", "eastmoney_push2", "eastmoney_push2_mirror", "sina_market_center"):
         rows = P.src_snapshot(src)
-        if rows and len(rows) > 1000:
-            warn = []
+        coverage = market_coverage(rows or [], expected, src)
+        if rows and coverage['complete']:
+            rows = [{**r, 'src': src} for r in rows]
+            warn = list(rejected)
             if src == "tencent_qt":
                 warn.append("腾讯源：无行业/涨速（行业取知识库，涨速列留空）")
             if src == "sina_market_center":
                 warn.append("⚠ 降级源：无 OHLC/行业/量比——一字板等形态判不出")
             return rows, src, warn, False
+        rejected.append(f"{src}覆盖不足：{coverage['returned']}/{coverage['expected']}，未用于全市场统计")
         time.sleep(1)
-    return [], "", ["⚠ 全部快照源失败——本次无实时读数，只有盘前静态数据"], False
+    return [], "", rejected + ["⚠ 全部快照源失败——本次无实时读数，只有盘前静态数据"], False
 
 
 def take_boards(cfg, dry_run):
@@ -638,6 +648,7 @@ def compute_readings(snap, boards, rows, focus_idx, cfg, src, pools=None, kprev=
     return {"mkt_med": mkt_med, "focus": focus, "ranked": ranked,
             "movers": movers_out, "lurkers": lurkers, "candidates": candidates,
             "pankou": pankou, "ladder": ladder, "sentiment": sentiment,
+            "main_theme": main_theme,
             "catchup": catchup,
             "alignment": {"overlap": overlap, "overlap40": overlap_all, "verdict": verdict},
             "warns": warns, "n_live": len(live),

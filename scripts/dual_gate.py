@@ -143,7 +143,7 @@ def prev_limit_map(today, max_back=10):
     return _res
 
 
-def compute(sentiment, ladder, zt_rows, snap, con, quote_day, pk_rows=None):
+def compute(sentiment, ladder, zt_rows, snap, con, quote_day, pk_rows=None, verified_history=None):
     """双闸读数 + 2×2 组合判定灯 + 背离细检。纯函数，缺项留空。
     参数：sentiment/ladder（pankou 口径）、zt_rows（今日涨停池）、snap（全市场快照）、
          con（code→题材标签，扩散度用）、pk_rows（涨停行，含画像：闸B 一票一归属计数）、
@@ -170,7 +170,7 @@ def compute(sentiment, ladder, zt_rows, snap, con, quote_day, pk_rows=None):
     broke, refill = _num(sent.get("炸板"), 0), _num(sent.get("回封"), 0)
     refill_rate = round(refill / broke * 100, 1) if broke else None
 
-    prev_date, prev_map, prev_note = prev_limit_map(quote_day)
+    prev_date, prev_map, prev_note = ((verified_history.get('previous_day','').replace('-',''), verified_history.get('previous_map',{}),verified_history.get('note')) if verified_history is not None else prev_limit_map(quote_day))
     if prev_note:
         notes.append(prev_note)
     promo, 首板溢价, 连板溢价, 大面 = {}, None, None, None
@@ -198,7 +198,7 @@ def compute(sentiment, ladder, zt_rows, snap, con, quote_day, pk_rows=None):
 
     # 纵向对比（用户 2026-10-25：只给最强太片面）——近 5 个盘后池的涨停家数均值 vs 今日
     _dirs5 = [d for d in _pool_dirs() if d[0] < str(quote_day)][-5:]
-    _cnt = _day_limit_counts(_dirs5)
+    _cnt = verified_history.get('counts',{}) if verified_history is not None else _day_limit_counts(_dirs5)
     _seq = [n for _d, n in _cnt.items() if n is not None]
     avg5 = round(sum(_seq) / len(_seq)) if _seq else None
     mult = round(_num(zt_n, 0) / avg5, 2) if (avg5 and zt_n) else None

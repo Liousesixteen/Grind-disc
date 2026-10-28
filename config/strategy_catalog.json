@@ -1,0 +1,1660 @@
+{
+  "schema_version": 2,
+  "policy": "默认口径为熔炼系统；以下是其观测器映射，不自动切换独立体系执行。所有策略未验证，不输出下单。",
+  "sources": {
+    "base": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+    "233": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+    "wind": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+    "boge": "knowledge/styles/波哥痕迹学/波哥体系-可执行版-v3.3.md 二 三个层级；四 代理方案；八 失效条件",
+    "rou": "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队",
+    "rou2": "knowledge/styles/肉肉体系/肉肉体系-02-题材图谱与新旧判定-AI主线快照-2026-10-27.md 九 证据等级与缺口",
+    "industry": "knowledge/sector-research-standard.md 行业验收"
+  },
+  "profiles": [
+    {
+      "id": "halfway_233",
+      "name": "233·方向共振/半路观察",
+      "version": "0.2.0",
+      "style": "短线",
+      "lifecycle": "experimental",
+      "validated": false,
+      "scope": "研究观察，全部条件齐备也不是买入指令",
+      "sources": [
+        "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+        "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+        "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队"
+      ],
+      "rules": [
+        {
+          "id": "quote_valid",
+          "field": "quote_valid",
+          "label": "源行情、交易日历及价格可核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "data",
+          "evidence_grade": "事实",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "not_st",
+          "field": "not_st",
+          "label": "排除ST/退市风险标记",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "macro_approved",
+          "field": "macro_approved",
+          "label": "周期/相位与所选风格经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "risk_review",
+          "field": "risk_review",
+          "label": "重大负面与风险边界经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "behavior_approved",
+          "field": "behavior_approved",
+          "label": "行为门禁：状态、交易纪律与风格已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "liquidity_confirmed",
+          "field": "liquidity_confirmed",
+          "label": "流动性与产业链资金去向有可核验证据",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "execution_plan_verified",
+          "field": "execution_plan_verified",
+          "label": "错误条件、认错时限与现金/分账约束已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "prepool_eligible",
+          "field": "prepool_eligible",
+          "label": "截至上一收盘的核心/备选池内",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "pool_three_passed",
+          "field": "pool_three_passed",
+          "label": "股性/辨识度/量价三筛已通过",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "theme_positive",
+          "field": "theme_positive",
+          "label": "题材等权涨幅为正",
+          "op": "gt",
+          "value": 0,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "theme_excess",
+          "field": "theme_excess",
+          "label": "题材跑赢当前全市场中位",
+          "op": "gt",
+          "value": 0,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "theme_breadth",
+          "field": "theme_breadth",
+          "label": "题材上涨占比≥50%（研究阈值）",
+          "op": "gte",
+          "value": 0.5,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "leader_positive",
+          "field": "leader_positive",
+          "label": "桶内已识别核心当日红盘",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "environment_coefficient",
+          "field": "environment_coefficient",
+          "label": "环境系数≥0.4（需核验，不从情绪灯猜算）",
+          "op": "gte",
+          "value": 0.4,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "manual",
+          "evidence_grade": "条件化启发，阈值待回测",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "volume_ratio",
+          "field": "volume_ratio",
+          "label": "实时量比≥1.5（研究阈值）",
+          "op": "gte",
+          "value": 1.5,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "above_previous_high",
+          "field": "above_previous_high",
+          "label": "价格超过上一已完成交易日高点",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "leadership_verified",
+          "field": "leadership_verified",
+          "label": "辨识度、带动性与核心身份经核验",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "expectation_gap",
+          "field": "expectation_gap",
+          "label": "预期差与兑现风险经核验",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "not_limit_up",
+          "field": "not_limit_up",
+          "label": "尚未触及实际涨停价，且报价非零成交",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        }
+      ],
+      "invalidations": [
+        "板块转弱或核心失效",
+        "跌破预先登记的失效价",
+        "到认错时限仍未确认",
+        "报价/交易日历失效"
+      ],
+      "rank": [
+        "readiness",
+        "setup_state",
+        "risk_adj",
+        "pool_tier",
+        "relative20",
+        "failed_conditions",
+        "missing_count"
+      ],
+      "policy": {
+        "cash_floor": 0.2,
+        "overnight_cap": 0.6,
+        "first_planned_fraction": 0.3333333333333333,
+        "automatic_orders": false
+      },
+      "capabilities": {
+        "technical_backtest": false,
+        "point_in_time_full_strategy": false,
+        "auto_orders": false
+      }
+    },
+    {
+      "id": "wind_a",
+      "name": "风轻云淡·信号A类别确认",
+      "version": "0.2.0",
+      "style": "波段",
+      "lifecycle": "experimental",
+      "validated": false,
+      "scope": "研究观察，全部条件齐备也不是买入指令",
+      "sources": [
+        "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+        "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道"
+      ],
+      "rules": [
+        {
+          "id": "quote_valid",
+          "field": "quote_valid",
+          "label": "源行情、交易日历及价格可核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "data",
+          "evidence_grade": "事实",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "not_st",
+          "field": "not_st",
+          "label": "排除ST/退市风险标记",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "macro_approved",
+          "field": "macro_approved",
+          "label": "周期/相位与所选风格经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "risk_review",
+          "field": "risk_review",
+          "label": "重大负面与风险边界经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "behavior_approved",
+          "field": "behavior_approved",
+          "label": "行为门禁：状态、交易纪律与风格已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "liquidity_confirmed",
+          "field": "liquidity_confirmed",
+          "label": "流动性与产业链资金去向有可核验证据",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "execution_plan_verified",
+          "field": "execution_plan_verified",
+          "label": "错误条件、认错时限与现金/分账约束已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "signal_a_classes",
+          "field": "signal_a_classes",
+          "label": "均线/指标/形态至少2类确认（完成日线）",
+          "op": "gte",
+          "value": 2,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "support_approved",
+          "field": "support_approved",
+          "label": "关键位、失效位与赔率经核验",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "catalyst_confirmed",
+          "field": "catalyst_confirmed",
+          "label": "基本面常识与催化证据复核",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        }
+      ],
+      "invalidations": [
+        "两类确认消失",
+        "关键位失守",
+        "基本面证伪",
+        "环境相位不再适配"
+      ],
+      "rank": [
+        "readiness",
+        "setup_state",
+        "risk_adj",
+        "pool_tier",
+        "relative20",
+        "failed_conditions",
+        "missing_count"
+      ],
+      "policy": {
+        "cash_floor": 0.2,
+        "overnight_cap": 0.6,
+        "first_planned_fraction": 0.3333333333333333,
+        "automatic_orders": false
+      },
+      "capabilities": {
+        "technical_backtest": true,
+        "point_in_time_full_strategy": false,
+        "auto_orders": false
+      },
+      "backtest_spec": [
+        {
+          "field": "signal_a_classes",
+          "op": "gte",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "id": "wind_b",
+      "name": "风轻云淡·信号B阶段确认",
+      "version": "0.2.0",
+      "style": "波段",
+      "lifecycle": "experimental",
+      "validated": false,
+      "scope": "研究观察，全部条件齐备也不是买入指令",
+      "sources": [
+        "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+        "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道"
+      ],
+      "rules": [
+        {
+          "id": "quote_valid",
+          "field": "quote_valid",
+          "label": "源行情、交易日历及价格可核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "data",
+          "evidence_grade": "事实",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "not_st",
+          "field": "not_st",
+          "label": "排除ST/退市风险标记",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "macro_approved",
+          "field": "macro_approved",
+          "label": "周期/相位与所选风格经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "risk_review",
+          "field": "risk_review",
+          "label": "重大负面与风险边界经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "behavior_approved",
+          "field": "behavior_approved",
+          "label": "行为门禁：状态、交易纪律与风格已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "liquidity_confirmed",
+          "field": "liquidity_confirmed",
+          "label": "流动性与产业链资金去向有可核验证据",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "execution_plan_verified",
+          "field": "execution_plan_verified",
+          "label": "错误条件、认错时限与现金/分账约束已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "dry_volume_ratio",
+          "field": "dry_volume_ratio",
+          "label": "最近10日均量/此前20日均量<0.75",
+          "op": "lt",
+          "value": 0.75,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "no_new_low10",
+          "field": "no_new_low10",
+          "label": "10日低点不低于此前20日低点（操作化代理）",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "range_contracting",
+          "field": "range_contracting",
+          "label": "近期振幅较前期收窄",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "drawdown60",
+          "field": "drawdown60",
+          "label": "距60日高点回落>15%",
+          "op": "gt",
+          "value": 15,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "completed_launch",
+          "field": "completed_launch",
+          "label": "最近已完成K线放量阳线启动",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "b_nextday_confirmed",
+          "field": "b_nextday_confirmed",
+          "label": "启动后次一交易日已完成且确认未失败",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "support_approved",
+          "field": "support_approved",
+          "label": "防守位与空间经核验",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        }
+      ],
+      "invalidations": [
+        "启动次日放量长阴跌破启动开盘价",
+        "回吐超阈值或跌破结构",
+        "只有缩量而无右侧确认"
+      ],
+      "rank": [
+        "readiness",
+        "setup_state",
+        "risk_adj",
+        "pool_tier",
+        "relative20",
+        "failed_conditions",
+        "missing_count"
+      ],
+      "policy": {
+        "cash_floor": 0.2,
+        "overnight_cap": 0.6,
+        "first_planned_fraction": 0.3333333333333333,
+        "automatic_orders": false
+      },
+      "capabilities": {
+        "technical_backtest": true,
+        "point_in_time_full_strategy": false,
+        "auto_orders": false
+      },
+      "backtest_spec": [
+        {
+          "field": "b_nextday_confirmed",
+          "op": "eq",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "first_board_pullback",
+      "name": "风轻云淡·首板回调右侧研究",
+      "version": "0.2.0",
+      "style": "波段",
+      "lifecycle": "experimental",
+      "validated": false,
+      "scope": "研究观察，全部条件齐备也不是买入指令",
+      "sources": [
+        "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+        "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道"
+      ],
+      "rules": [
+        {
+          "id": "quote_valid",
+          "field": "quote_valid",
+          "label": "源行情、交易日历及价格可核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "data",
+          "evidence_grade": "事实",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "not_st",
+          "field": "not_st",
+          "label": "排除ST/退市风险标记",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "macro_approved",
+          "field": "macro_approved",
+          "label": "周期/相位与所选风格经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "risk_review",
+          "field": "risk_review",
+          "label": "重大负面与风险边界经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "behavior_approved",
+          "field": "behavior_approved",
+          "label": "行为门禁：状态、交易纪律与风格已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "liquidity_confirmed",
+          "field": "liquidity_confirmed",
+          "label": "流动性与产业链资金去向有可核验证据",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "execution_plan_verified",
+          "field": "execution_plan_verified",
+          "label": "错误条件、认错时限与现金/分账约束已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "days_since_zt",
+          "field": "days_since_zt",
+          "label": "首板后已完成交易日窗口（先核首板质量）",
+          "op": "between",
+          "value": [
+            2,
+            15
+          ],
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "first_board_quality",
+          "field": "first_board_quality",
+          "label": "原首板非一字/尾盘/反复炸板且封板质量完整",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "manual",
+          "evidence_grade": "条件化启发，需人工证据",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "pullback_volume_ratio",
+          "field": "pullback_volume_ratio",
+          "label": "当前回调量/首板量≤1/3（完成日线）",
+          "op": "lte",
+          "value": 0.3333333333333333,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "holds_launch_body",
+          "field": "holds_launch_body",
+          "label": "不破首板实体下沿",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "right_side_confirmed",
+          "field": "right_side_confirmed",
+          "label": "均线与止跌后的右侧重新确认",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "manual",
+          "evidence_grade": "条件化启发，需人工证据",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "support_approved",
+          "field": "support_approved",
+          "label": "回调支撑与赔率经核验",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "pullback_above_prebase",
+          "field": "pullback_above_prebase",
+          "label": "回调均量仍高于板前20日均量代理",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（横盘均量代理）",
+          "reason": "回调缩回前期地量则不通过；横盘区间仍需人工核对"
+        }
+      ],
+      "invalidations": [
+        "跌破首板实体下沿",
+        "回调缩至突破前地量且未右侧确认",
+        "环境合力消失"
+      ],
+      "rank": [
+        "readiness",
+        "setup_state",
+        "risk_adj",
+        "pool_tier",
+        "relative20",
+        "failed_conditions",
+        "missing_count"
+      ],
+      "policy": {
+        "cash_floor": 0.2,
+        "overnight_cap": 0.6,
+        "first_planned_fraction": 0.3333333333333333,
+        "automatic_orders": false
+      },
+      "capabilities": {
+        "technical_backtest": false,
+        "point_in_time_full_strategy": false,
+        "auto_orders": false
+      }
+    },
+    {
+      "id": "theme_leadership",
+      "name": "肉肉·题材与梯队核验",
+      "version": "0.2.0",
+      "style": "短线",
+      "lifecycle": "experimental",
+      "validated": false,
+      "scope": "研究观察，全部条件齐备也不是买入指令",
+      "sources": [
+        "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+        "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队",
+        "knowledge/styles/肉肉体系/肉肉体系-02-题材图谱与新旧判定-AI主线快照-2026-10-27.md 九 证据等级与缺口"
+      ],
+      "rules": [
+        {
+          "id": "quote_valid",
+          "field": "quote_valid",
+          "label": "源行情、交易日历及价格可核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "data",
+          "evidence_grade": "事实",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "not_st",
+          "field": "not_st",
+          "label": "排除ST/退市风险标记",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "macro_approved",
+          "field": "macro_approved",
+          "label": "周期/相位与所选风格经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "risk_review",
+          "field": "risk_review",
+          "label": "重大负面与风险边界经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "behavior_approved",
+          "field": "behavior_approved",
+          "label": "行为门禁：状态、交易纪律与风格已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "liquidity_confirmed",
+          "field": "liquidity_confirmed",
+          "label": "流动性与产业链资金去向有可核验证据",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "execution_plan_verified",
+          "field": "execution_plan_verified",
+          "label": "错误条件、认错时限与现金/分账约束已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "prepool_eligible",
+          "field": "prepool_eligible",
+          "label": "截至上一收盘的核心/备选池内",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "pool_three_passed",
+          "field": "pool_three_passed",
+          "label": "股性/辨识度/量价三筛已通过",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "catalyst_confirmed",
+          "field": "catalyst_confirmed",
+          "label": "政策/订单/技术催化有可追溯原文",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "theme_freshness",
+          "field": "theme_freshness",
+          "label": "环节级新旧、催化有效期经核验",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/肉肉体系/肉肉体系-02-题材图谱与新旧判定-AI主线快照-2026-10-27.md 九 证据等级与缺口",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "expectation_gap",
+          "field": "expectation_gap",
+          "label": "已定价内容与预期差经核验",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "ladder_zt",
+          "field": "ladder_zt",
+          "label": "同一主归属桶至少3只涨停（研究阈值）",
+          "op": "gte",
+          "value": 3,
+          "source": "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "leader_positive",
+          "field": "leader_positive",
+          "label": "核心当日红盘",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "leadership_verified",
+          "field": "leadership_verified",
+          "label": "总龙头/日内龙/中军职责经核验",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        }
+      ],
+      "invalidations": [
+        "催化证伪/过期",
+        "中军破坏或梯队瓦解",
+        "核心身份被替代",
+        "仅靠名字玄学支撑"
+      ],
+      "rank": [
+        "readiness",
+        "setup_state",
+        "risk_adj",
+        "pool_tier",
+        "relative20",
+        "failed_conditions",
+        "missing_count"
+      ],
+      "policy": {
+        "cash_floor": 0.2,
+        "overnight_cap": 0.6,
+        "first_planned_fraction": 0.3333333333333333,
+        "automatic_orders": false
+      },
+      "capabilities": {
+        "technical_backtest": false,
+        "point_in_time_full_strategy": false,
+        "auto_orders": false
+      }
+    },
+    {
+      "id": "cycle_etf",
+      "name": "波哥·上层环境/ETF预案",
+      "version": "0.2.0",
+      "style": "波段",
+      "lifecycle": "experimental",
+      "validated": false,
+      "scope": "研究观察，全部条件齐备也不是买入指令",
+      "sources": [
+        "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+        "knowledge/styles/波哥痕迹学/波哥体系-可执行版-v3.3.md 二 三个层级；四 代理方案；八 失效条件"
+      ],
+      "rules": [
+        {
+          "id": "quote_valid",
+          "field": "quote_valid",
+          "label": "源行情、交易日历及价格可核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "data",
+          "evidence_grade": "事实",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "not_st",
+          "field": "not_st",
+          "label": "排除ST/退市风险标记",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "macro_approved",
+          "field": "macro_approved",
+          "label": "周期/相位与所选风格经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "risk_review",
+          "field": "risk_review",
+          "label": "重大负面与风险边界经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "behavior_approved",
+          "field": "behavior_approved",
+          "label": "行为门禁：状态、交易纪律与风格已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "liquidity_confirmed",
+          "field": "liquidity_confirmed",
+          "label": "流动性与产业链资金去向有可核验证据",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "execution_plan_verified",
+          "field": "execution_plan_verified",
+          "label": "错误条件、认错时限与现金/分账约束已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "is_etf",
+          "field": "is_etf",
+          "label": "左侧/底部研究默认ETF工具",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/波哥痕迹学/波哥体系-可执行版-v3.3.md 二 三个层级；四 代理方案；八 失效条件",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "boge_l1",
+          "field": "boge_l1",
+          "label": "L1多指数风格和级别已完成",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/波哥痕迹学/波哥体系-可执行版-v3.3.md 二 三个层级；四 代理方案；八 失效条件",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "boge_l2",
+          "field": "boge_l2",
+          "label": "L2结构和量能已完成",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/波哥痕迹学/波哥体系-可执行版-v3.3.md 二 三个层级；四 代理方案；八 失效条件",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "support_approved",
+          "field": "support_approved",
+          "label": "盘前关键位、认错价和时限已登记",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/波哥痕迹学/波哥体系-可执行版-v3.3.md 二 三个层级；四 代理方案；八 失效条件",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "counter_scenario",
+          "field": "counter_scenario",
+          "label": "至少一条反方预案已登记",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/波哥痕迹学/波哥体系-可执行版-v3.3.md 二 三个层级；四 代理方案；八 失效条件",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        }
+      ],
+      "invalidations": [
+        "价格或时间认错线触发",
+        "连续跳空导致结构代理失真",
+        "上层定位与下层信号冲突"
+      ],
+      "rank": [
+        "readiness",
+        "setup_state",
+        "risk_adj",
+        "pool_tier",
+        "relative20",
+        "failed_conditions",
+        "missing_count"
+      ],
+      "policy": {
+        "cash_floor": 0.2,
+        "overnight_cap": 0.6,
+        "first_planned_fraction": 0.3333333333333333,
+        "automatic_orders": false
+      },
+      "capabilities": {
+        "technical_backtest": false,
+        "point_in_time_full_strategy": false,
+        "auto_orders": false
+      }
+    },
+    {
+      "id": "fundamental_core",
+      "name": "机构研究·基本面双通道互检",
+      "version": "0.2.0",
+      "style": "核心长线",
+      "lifecycle": "experimental",
+      "validated": false,
+      "scope": "研究观察，全部条件齐备也不是买入指令",
+      "sources": [
+        "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+        "knowledge/sector-research-standard.md 行业验收"
+      ],
+      "rules": [
+        {
+          "id": "quote_valid",
+          "field": "quote_valid",
+          "label": "源行情、交易日历及价格可核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "data",
+          "evidence_grade": "事实",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "not_st",
+          "field": "not_st",
+          "label": "排除ST/退市风险标记",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "macro_approved",
+          "field": "macro_approved",
+          "label": "周期/相位与所选风格经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "risk_review",
+          "field": "risk_review",
+          "label": "重大负面与风险边界经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "behavior_approved",
+          "field": "behavior_approved",
+          "label": "行为门禁：状态、交易纪律与风格已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "liquidity_confirmed",
+          "field": "liquidity_confirmed",
+          "label": "流动性与产业链资金去向有可核验证据",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "execution_plan_verified",
+          "field": "execution_plan_verified",
+          "label": "错误条件、认错时限与现金/分账约束已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "industry_verified",
+          "field": "industry_verified",
+          "label": "行业成熟度/利润瓶颈与十二层验收",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/sector-research-standard.md 行业验收",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "fundamental_verified",
+          "field": "fundamental_verified",
+          "label": "主营质量与财务原始证据核验",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/sector-research-standard.md 行业验收",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "valuation_verified",
+          "field": "valuation_verified",
+          "label": "隐含预期/悲中乐情景与估值赔率核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "catalyst_confirmed",
+          "field": "catalyst_confirmed",
+          "label": "催化与信息可得日核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "signal_a_classes",
+          "field": "signal_a_classes",
+          "label": "量价侧至少2类启动确认",
+          "op": "gte",
+          "value": 2,
+          "source": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md 一 信号体系；二 埋伏之道",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        }
+      ],
+      "invalidations": [
+        "生意或财务逻辑证伪",
+        "估值透支导致赔率反转",
+        "量价确认失效",
+        "证据过期"
+      ],
+      "rank": [
+        "readiness",
+        "setup_state",
+        "risk_adj",
+        "pool_tier",
+        "relative20",
+        "failed_conditions",
+        "missing_count"
+      ],
+      "policy": {
+        "cash_floor": 0.2,
+        "overnight_cap": 0.6,
+        "first_planned_fraction": 0.3333333333333333,
+        "automatic_orders": false
+      },
+      "capabilities": {
+        "technical_backtest": false,
+        "point_in_time_full_strategy": false,
+        "auto_orders": false
+      }
+    },
+    {
+      "id": "relative_strength_lab",
+      "name": "实验·同题材相对强弱持续性",
+      "version": "0.2.0",
+      "style": "波段",
+      "lifecycle": "incubation",
+      "validated": false,
+      "scope": "研究观察，全部条件齐备也不是买入指令",
+      "sources": [
+        "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+        "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号"
+      ],
+      "rules": [
+        {
+          "id": "quote_valid",
+          "field": "quote_valid",
+          "label": "源行情、交易日历及价格可核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "data",
+          "evidence_grade": "事实",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "not_st",
+          "field": "not_st",
+          "label": "排除ST/退市风险标记",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "macro_approved",
+          "field": "macro_approved",
+          "label": "周期/相位与所选风格经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "risk_review",
+          "field": "risk_review",
+          "label": "重大负面与风险边界经人工核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "behavior_approved",
+          "field": "behavior_approved",
+          "label": "行为门禁：状态、交易纪律与风格已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "liquidity_confirmed",
+          "field": "liquidity_confirmed",
+          "label": "流动性与产业链资金去向有可核验证据",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "execution_plan_verified",
+          "field": "execution_plan_verified",
+          "label": "错误条件、认错时限与现金/分账约束已核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "硬纪律的人工核验",
+          "reason": "人工核验须附来源、时点、失效条件；不能以其他因子抵消"
+        },
+        {
+          "id": "prepool_eligible",
+          "field": "prepool_eligible",
+          "label": "截至上一收盘的核心/备选池内",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "policy",
+          "evidence_grade": "工作区约束",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "pool_three_passed",
+          "field": "pool_three_passed",
+          "label": "股性/辨识度/量价三筛已通过",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "theme_positive",
+          "field": "theme_positive",
+          "label": "题材等权涨幅为正",
+          "op": "gt",
+          "value": 0,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "theme_excess",
+          "field": "theme_excess",
+          "label": "题材跑赢当前全市场中位",
+          "op": "gt",
+          "value": 0,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "theme_breadth",
+          "field": "theme_breadth",
+          "label": "题材上涨占比≥50%（研究阈值）",
+          "op": "gte",
+          "value": 0.5,
+          "source": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md 三 3个确认信号",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "leader_positive",
+          "field": "leader_positive",
+          "label": "桶内已识别核心当日红盘",
+          "op": "eq",
+          "value": true,
+          "source": "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md 二 题材逻辑；五 板块梯队",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "relative20",
+          "field": "relative20",
+          "label": "20日收益跑赢同题材池内中位",
+          "op": "gt",
+          "value": 0,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "rs_persistence",
+          "field": "rs_persistence",
+          "label": "已观测3个独立有效快照保持相对强势",
+          "op": "gte",
+          "value": 3,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "position60",
+          "field": "position60",
+          "label": "60日位置≤0.7（实验阈值，不等于低位）",
+          "op": "lte",
+          "value": 0.7,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "condition",
+          "evidence_grade": "待回测假设（研究代理）",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        },
+        {
+          "id": "support_approved",
+          "field": "support_approved",
+          "label": "阻力/失效距离及风险收益核验",
+          "op": "eq",
+          "value": true,
+          "source": "熔炼系统.md 四 统一引擎：六层漏斗；五 仓位总方程；八 证据等级与自身验证清单",
+          "kind": "manual",
+          "evidence_grade": "待核验",
+          "reason": "不满足时仅观察，不用其他分数抵消"
+        }
+      ],
+      "invalidations": [
+        "相对强弱连续性消失",
+        "阻力空间不足",
+        "跌破失效价"
+      ],
+      "rank": [
+        "readiness",
+        "setup_state",
+        "risk_adj",
+        "pool_tier",
+        "relative20",
+        "failed_conditions",
+        "missing_count"
+      ],
+      "policy": {
+        "cash_floor": 0.2,
+        "overnight_cap": 0.6,
+        "first_planned_fraction": 0.3333333333333333,
+        "automatic_orders": false
+      },
+      "capabilities": {
+        "technical_backtest": false,
+        "point_in_time_full_strategy": false,
+        "auto_orders": false
+      }
+    }
+  ],
+  "references": [
+    {
+      "title": "QuantConnect Research Guide",
+      "url": "https://www.quantconnect.com/docs/v2/writing-algorithms/key-concepts/research-guide",
+      "use": "因果时间、幸存者偏差与样本外验证"
+    },
+    {
+      "title": "QuantConnect Walk Forward",
+      "url": "https://www.quantconnect.com/docs/v2/writing-algorithms/optimization/walk-forward-optimization",
+      "use": "滚动样本内外分离"
+    },
+    {
+      "title": "Tushare复权行情",
+      "url": "https://tushare.pro/document/2?doc_id=109",
+      "use": "复权与足够预热历史，不把缺数据当零"
+    }
+  ],
+  "source_files": [
+    {
+      "path": "熔炼系统.md",
+      "sha256": "49181460a58ffbb1020d5c62f5220a3b0a3353509e8a25d5cfabf904c84c8709"
+    },
+    {
+      "path": "熔炼规则.md",
+      "sha256": "90d601f73d938ee599f68386cc071bef7a7981b404d50b1c562cad56a83943e2"
+    },
+    {
+      "path": "作业节奏.md",
+      "sha256": "fe53f71b1f895b8e2978d8fd7fe2a3759962818e719e0dea67dca065e16e92a2"
+    },
+    {
+      "path": "DAILY_OPERATING_PLAYBOOK.md",
+      "sha256": "74a780d668705509a8dbb27ffa654d333131926d8c16602518ea194795182f61"
+    },
+    {
+      "path": "DATA_SOURCE_POLICY.md",
+      "sha256": "a8ddd5062877614db000963d6a5cc5de6ffcfd33e259a8c3937c00ed6004e36a"
+    },
+    {
+      "path": "knowledge/sector-research-standard.md",
+      "sha256": "845cce7f45ae948869ef45b00f8e09e549966d55042caedea6266782b466061e"
+    },
+    {
+      "path": "knowledge/styles/233战法/233战法-交易知识库-整合版-v1.0.md",
+      "sha256": "300b3088bbb37db9d9c21cbb4faf7b1c678792dc3761655930297992205e8786"
+    },
+    {
+      "path": "knowledge/styles/风轻云淡/风轻云淡-交易知识库-整合版-v3.3.md",
+      "sha256": "8262bb2200de835e3e73ece4e8329e2842fff21645a8cb7552f281618a96d0a5"
+    },
+    {
+      "path": "knowledge/styles/波哥痕迹学/波哥体系-可执行版-v3.3.md",
+      "sha256": "57a2119b3fe1de6a96ef9c560d491e1e65fe003d09fa41f98654f69f6dfb462e"
+    },
+    {
+      "path": "knowledge/styles/肉肉体系/肉肉体系-龙头战法-交易知识库-整合版-v1.0.md",
+      "sha256": "34c766abcf2d98cad2adfaf27872dec217859b59217c2c626df990fd42741298"
+    }
+  ]
+}

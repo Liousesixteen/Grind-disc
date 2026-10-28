@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="utf-8"><title>盘中实时看板</title>
+<style>
+body{font-family:-apple-system,sans-serif;margin:18px;background:#1b1b1f;color:#e4e4e8}
+h1{font-size:19px;margin:4px 0} h2{font-size:15px;margin:22px 0 8px;color:#c9c9d2}
+.meta{color:#8a8a95;font-size:12.5px;margin:2px 0}
+table{border-collapse:collapse;font-size:12.5px;width:100%}
+td,th{border:1px solid #3a3a42;padding:3px 7px;text-align:left}
+th{background:#26262c;color:#b8b8c2;font-weight:500}
+.tag{display:inline-block;font-size:10.5px;padding:0 5px;border-radius:4px;color:#fff;margin-right:5px}
+tr.t-zd td{background:#2d1e1e} tr.t-zd .tag{background:#b04a4a}
+tr.t-gc td{background:#1c2733} tr.t-gc .tag{background:#3a7abf}
+tr.t-hj td{background:#251f33} tr.t-hj .tag{background:#6b5fc0}
+td.pre{color:#9a9aa5;font-size:11.5px}
+.sent{font-size:13px;color:#c9c9d2;background:#242a33;border-left:3px solid #3a7abf;padding:6px 10px;margin:6px 0}
+.sent b{color:#f0c46a}
+.rl{display:inline-block;font-size:10.5px;padding:0 5px;border-radius:4px;color:#fff;
+  margin-right:3px;border:1px solid transparent}
+/* 角色标签配色（2026-10-24 用户报：『空间龙·总龙头·天量换手』显示成灰色认不出）
+   旧写法把整串当 key 查表 → 复合标签查不到 → 一律落到 rl-f「跟风」的深灰底，
+   等于把最强的票画成最不起眼的颜色。现在按 · 拆开逐段染色，并按重要性给了梯度：
+   紫(空间龙/总龙头) > 红(板块龙头) > 橙(首板龙头) > 金(日内龙) > 青(早盘板) > 蓝(助攻)
+   > 绿(补涨) > 紫灰(换手龙) > 棕(一字龙) > 暗红(天量换手) > 灰(独苗) > 深灰(跟风)。*/
+.rl-x{background:#8B3FBF;border-color:#B074E0}
+.rl-h{background:#C0392B;border-color:#E8756A}
+.rl-s{background:#B4551F;border-color:#E08A4F}
+.rl-1{background:#8A6D1B;border-color:#C9A227}
+.rl-k{background:#1F6FA8;border-color:#4A9BD9}
+.rl-e{background:#1F7A72;border-color:#4FB3A9}
+.rl-a{background:#2E5F8A;border-color:#5A8FB8}
+.rl-b{background:#3F6B28;border-color:#6FA34D}
+.rl-t{background:#5B4A8A;border-color:#8D7AC0}
+.rl-y{background:#7A4A2A;border-color:#B07A4A}
+.rl-v{background:#7A3038;border-color:#B06068}
+.rl-d{background:#4A4A55;border-color:#6E6E7A;color:#E4E4EA}
+.rl-f{background:#33333C;border-color:#4A4A55;color:#B8B8C2}
+/* ── K 线形态标签（2026-10-27 用户要求）────────────────────────────────
+   实心＝角色（它在梯队里是什么身份），空心＝形态（这根 K 线长什么样）。
+   两者可同时成立（一字板 + 空间龙），所以必须视觉上分开，不能混进同一串。
+   一字板给金边：开盘即封死＝隔夜资金一致预期最强，是形态里信号最硬的一种。*/
+.fm{display:inline-block;font-size:10px;line-height:1.55;padding:0 4px;border-radius:3px;
+  margin:0 3px 1px 0;background:transparent;border:1px solid #5a6270;color:#aab4c2;white-space:nowrap}
+.fm-yz{border-color:#c9a227;background:#2b2416;color:#e0c46a}
+.fm-tz{border-color:#a4742a;color:#d8a86a}
+.fm-dt{border-color:#8B3FBF;color:#c08fe0}
+.fm-td{border-color:#a32d2d;color:#d08a8a}
+.fm-hf{border-color:#3a7abf;color:#8fb4dd}
+.fm-jj{border-color:#4e7a33;color:#8fbf6a}
+.fm-wp{border-color:#5a6270;color:#9aa5b4}
+.brk{font-size:10.5px;color:#7fae7f}
+.lad-ok{color:#8fbf6a} .lad-bad{color:#d0a0a0}
+.pos{font-size:10.5px;padding:0 4px;border-radius:4px;color:#fff;margin-left:3px}
+.p-lo{background:#4e7a33}.p-md{background:#6b6b73}.p-hi{background:#a4742a}
+.warn{color:#d0a0a0;font-size:12px}
+/* ── 双闸对照（v2，2026-10-25 方案；C 级草案）── 两卡平级并排 + 组合条 ── */
+.dualrow{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 6px;align-items:flex-start}
+.dualcard{flex:1;min-width:400px;border:1px solid #3a3a42;border-radius:10px;background:#20202a;padding:10px 12px}
+.dualcard h3{font-size:13px;margin:0 0 7px;color:#c9c9d2;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:11.5px;background:#2a2a33;border:1px solid #3a3a44;border-radius:5px;padding:2px 7px;color:#c9c9d2}
+.chip b{color:#f0c46a;font-weight:500}
+.chip.good b{color:#8fbf6a}.chip.bad b{color:#d08080}
+.chip.hi{border-color:#6b5a2a;background:#2b2416}
+.chip.on{border-color:#5a86bf;background:#26303c;color:#cfe0f5}
+/* ── 闸A 重排（2026-10-27）：一屏三块 —— 大数 → 三条量表 → 四个计数 ──────────
+   旧版是 20 个等权重 chip 平铺，扫过去只看到一片框，看不出「今天最异常的是哪一项」。
+   现在把「规模（涨停家数）」放大，「质量（炸板率/一进二/首板溢价）」做成可比较的量表，
+   其余读数降级成一行小字事实——三档视觉权重，才有一眼定位。*/
+.gA{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;margin:4px 0 8px}
+.gA-big{text-align:center;flex:0 0 auto;min-width:88px}
+.gA-mtr{display:flex;flex-direction:column;gap:6px;flex:1 1 190px;min-width:168px}
+.gA-kpi{display:grid;grid-template-columns:repeat(2,auto);gap:5px 14px;flex:0 0 auto}
+.gA-big b{display:block;font-size:34px;line-height:1.05;color:#e8e8ef;font-variant-numeric:tabular-nums}
+.gA-big i{display:block;font-size:11px;color:#8a8a95;font-style:normal;margin-top:1px}
+.gA-big u{display:block;font-size:10.5px;color:#6f7885;text-decoration:none;margin-top:3px;white-space:nowrap}
+.mtr{display:flex;align-items:center;gap:8px;font-size:11.5px}
+.mtr .ml{width:56px;color:#8a8a95;flex:none}
+.mtr .mtrack{flex:1;height:9px;border-radius:5px;background:#2a2a33;overflow:hidden}
+.mtr .mtrack i{display:block;height:100%;border-radius:5px;background:#5c5c68;transition:width .3s}
+.mtr em{width:64px;text-align:right;font-style:normal;color:#c9c9d2;font-variant-numeric:tabular-nums;flex:none}
+.mtr.good .mtrack i{background:#5b8f5b}.mtr.good em{color:#8fbf6a}
+.mtr.bad .mtrack i{background:#a04a4a}.mtr.bad em{color:#d08080}
+.gA-kpi div{font-size:10.5px;color:#8a8a95;white-space:nowrap}
+.gA-kpi b{display:block;font-size:15px;color:#dcdce4;font-variant-numeric:tabular-nums;line-height:1.25;font-weight:600}
+.gA-facts{display:flex;flex-wrap:wrap;gap:3px 15px;font-size:11.5px;color:#7f8794;
+  border-top:1px dashed #33333c;padding-top:7px;margin-top:2px}
+.gA-facts .fct b{color:#cfd4dd;font-weight:600;margin-left:4px}
+.gA-facts .fct.bad b{color:#d08080}.gA-facts .fct.good b{color:#8fbf6a}
+@media (max-width:820px){.gA{grid-template-columns:1fr;gap:10px}.gA-big{text-align:left}
+ .gA-big b{display:inline;font-size:26px;margin-right:6px}.gA-big i,.gA-big u{display:inline}}
+.dmore{color:#8fb4dd;cursor:pointer;margin-left:8px;text-decoration:none}
+.dmore:hover{color:#cfe0f5;text-decoration:underline}
+.toast{position:fixed;right:22px;bottom:60px;background:#242a33;border:1px solid #3a7abf;color:#cfe0f5;
+ padding:8px 14px;border-radius:8px;font-size:12.5px;opacity:0;transition:.3s;pointer-events:none;z-index:99}
+.candit{cursor:pointer;border-radius:4px;padding:1px 4px}
+.candit:hover{background:#232a33;outline:1px solid #3a7abf}
+.cx{color:#5a6270;font-size:10px;margin-right:3px;display:inline-block;transition:.15s}
+tr.cxopen .cx{transform:rotate(90deg);color:#c9c9d2}
+tr.candline td{background:#171a1f;border-top:1px dashed #2e3540;padding:6px 8px}
+.candit{display:inline-block;margin:0 14px 0 0;font-size:12px;color:#c9c9d2}
+.candit b{color:#e8b96a;font-weight:600}
+.candit .cp{color:#e07575;margin-left:4px}
+.candit .cm{color:#6f7885;margin-left:4px;font-size:11px}
+.candhd{color:#8a8a95;font-size:11.5px;margin-right:10px}
+.structone{border:1px solid #2e2e36;border-radius:8px;background:#1d1d24;padding:8px 10px;margin:6px 0 2px}
+.so-hd{font-size:12px;color:#b8b8c2;margin:0 0 6px;font-weight:500}
+.so-hd span{color:#6f7885;font-weight:400;margin-left:8px;font-size:11px}
+.bpct{color:#6f7885;font-size:10px;font-style:normal;margin-left:3px}
+.librow{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch;margin:0 0 12px}
+.librow .dualcard{flex:1 1 320px;min-width:0;padding:9px 11px;overflow:hidden}
+.librow .dualcard table{width:100%}
+.librow .dualcard th,.librow .dualcard td{white-space:nowrap;padding:3px 6px}
+.librow .dualcard td:first-child{max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.librow .dualcard h3{font-size:12.5px;margin:0 0 6px;color:#c9c9d2;font-weight:500;letter-spacing:.2px}
+.librow .drilltab{font-size:12px}
+.dualcombo{border:1px solid #3a3a42;border-radius:10px;background:#20202a;padding:9px 12px;margin:0 0 4px}
+.duallamp{display:inline-block;font-size:13px;font-weight:500;color:#fff;padding:3px 12px;border-radius:6px}
+.dualact{font-size:12px;color:#e4e4e8;background:#26262c;border-left:3px solid #f0c46a;padding:5px 9px;margin-top:7px}
+.dualflag{font-size:12px;color:#f0c46a;background:#33261a;border-left:3px solid #b4551f;padding:4px 9px;margin-top:5px}
+.dualnote{font-size:11px;color:#8a8a95;margin-top:6px}
+.drillitem{display:inline-block;font-size:11.5px;color:#c9c9d2;text-decoration:none;
+  background:#26262c;border:1px solid #3a3a44;border-radius:5px;padding:2px 8px;margin:0 4px 4px 0;white-space:nowrap}
+.drillitem:hover{background:#2e3644;border-color:#5a86bf;color:#fff}
+/* 钻取面板（2026-10-25 重设计：内联长串→紧凑小表，行间信息对齐、可滚动、点名称跳盘口） */
+/* 涨停结构（2026-10-25 三改：条形左右并排＋明细可折叠默认展开） */
+.structinner{margin-top:9px;border-top:1px dashed #3a3a42;padding-top:8px}
+.structgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px}
+@media (max-width:980px){.structgrid{grid-template-columns:1fr}}
+.bars{display:flex;flex-direction:column;gap:3px}
+.bar{display:flex;align-items:center;gap:9px;cursor:pointer;padding:2px 5px;border-radius:5px}
+.bar:hover{background:#26262c}
+.bar.on{background:#26303c;outline:1px solid #5a86bf}
+.bar .bl{width:78px;font-size:11px;color:#aeb7c2;text-align:right;white-space:nowrap;flex:none}
+.bar .btrack{flex:1;height:13px;background:#22222a;border-radius:3px;overflow:hidden}
+.bar .bfill{display:block;height:100%;background:#4a7fb5;border-radius:3px;transition:width .25s}
+.bar.on .bfill{background:#6fa3d8}
+.bar .bn{width:42px;font-size:11px;color:#e4e4e8;text-align:left;flex:none}
+.drillwrap{max-height:236px;overflow-y:auto;margin-top:5px;border:1px solid #3a3a42;border-radius:7px}
+.drilltab{width:100%;border-collapse:collapse;font-size:11px}
+.drilltab th{background:#26262c;color:#b8b8c2;font-weight:500;padding:4px 7px;text-align:left;
+  position:sticky;top:0;z-index:1;border-bottom:1px solid #3a3a44}
+.drilltab td{border-top:1px solid #2a2a32;padding:3px 7px;color:#c9c9d2;white-space:nowrap}
+.drilltab tbody tr:nth-child(even) td{background:#1f1f26}
+.drilltab tbody tr:hover td{background:#242e3a}
+.drilltab th.sortth:hover{background:#30303a;color:#e4e4e8;text-decoration:underline}
+.dname{color:#8fb4dd;text-decoration:none;font-weight:500;cursor:pointer}
+.dname:hover{color:#cfe0f5;text-decoration:underline}
+tr.hlrow td{background:#3a2c12 !important;outline:1px solid #b08d3a}
+tr.gsep td{background:#26262c;color:#c9c9d2;font-size:11.5px;font-weight:600;letter-spacing:.3px;
+  border-left:4px solid #6b5a2a}
+tr.gsep.fire td{border-left-color:#b04a4a}
+tr.gsep td .mt{font-weight:400;margin-left:8px}
+.up{color:#e07a5f}.dn{color:#7fae7f}
+/* 页头（2026-10-24 用户报：整块固定、向下滚动收不上去，占掉大半屏）
+   #hd 不再 sticky，长图例折进 <details>；改一条 30px 的细状态条 #bar 吸顶，
+   只在滚过页头后出现——滚动时仍然看得见时间/情绪/指数，但不再压住内容。*/
+#hd{padding:4px 0 2px}
+#hd h1{font-size:18px;margin:2px 0 4px}
+#bar{position:sticky;top:0;z-index:6;display:none;align-items:center;gap:14px;
+  background:#15151A;border-bottom:1px solid #3A3A44;padding:5px 10px;
+  font-size:12px;color:#C9C9D2;white-space:nowrap;overflow:hidden}
+#bar.on{display:flex}
+#bar b{color:#F0C46A}
+#bar #bidx{color:#9AA7B6;overflow:hidden;text-overflow:ellipsis}
+#bar #bsent b{color:#F0C46A}
+/* ── 左侧固定侧边栏（v2 三轮改版：顶部目录点击后会消失 → 侧栏永久可见＋滚动高亮）──
+   速读块＝组合灯/涨停/炸板率/最强链，滚动时始终在视野里——「短时间全面了解」的锚点 */
+html{scroll-behavior:smooth}
+body{padding-left:146px}
+#side{position:fixed;left:0;top:0;bottom:0;width:132px;z-index:8;overflow-y:auto;
+  background:#15151A;border-right:1px solid #3a3a42;padding:12px 10px;
+  display:flex;flex-direction:column;gap:10px}
+.sbrand{font-size:13px;font-weight:500;color:#e4e4e8;line-height:1.5}
+#squick{border:1px solid #3a3a42;border-radius:8px;background:#1b1b22;padding:8px;font-size:11.5px;line-height:1.75;color:#c9c9d2}
+#squick .sl{color:#8a8a95;font-size:10.5px;display:block;margin-top:5px}
+#squick .sl:first-child{margin-top:0}
+#squick b{color:#f0c46a;font-weight:500}
+#squick .sch{display:inline-block;font-size:10.5px;color:#fff;padding:1px 7px;border-radius:4px}
+#snav{display:flex;flex-direction:column;gap:2px}
+#snav a{color:#aeb7c2;text-decoration:none;font-size:12.5px;padding:6px 8px;border-radius:6px;border-left:3px solid transparent}
+#snav a:hover{background:#22222a;color:#e4e4e8}
+#snav a.cur{background:#26303c;color:#cfe0f5;border-left-color:#4a9bd9}
+.sfoot{margin-top:auto;font-size:10.5px;color:#6b6b73;word-break:break-all}
+@media (max-width:1100px){#side{display:none}body{padding-left:0}}
+h2[id],#dualrow{scroll-margin-top:14px}
+#blamp{font-size:11px;color:#fff;padding:1px 7px;border-radius:4px;white-space:nowrap}
+details#lg{margin:4px 0 0}
+details#lg summary{cursor:pointer;color:#8FB4DD;font-size:12px;user-select:none}
+details#lg summary:hover{color:#B8D4F0}
+details#lg[open] summary{margin-bottom:4px}
+.idx{font-size:12.5px;color:#C9C9D2;margin:3px 0}
+.core{color:#a9c7e8;font-size:11.5px}
+.sc{color:#f0c46a;font-style:normal;font-weight:600;font-size:11px}
+.mt{color:#8a8a95;font-size:10.5px}
+.lay{display:inline-block;padding:0 5px;border-radius:3px;font-size:10.5px;color:#fff;white-space:nowrap}
+.l-main{background:#2f7d5c}.l-spill{background:#a4742a}.l-chase{background:#b04a4a}.l-none{background:#5a5a63}
+.l-sub{background:none;border:1px dashed #5A6270;color:#AEB7C2}
+.apx{color:#e8c26a;font-weight:700;margin-left:1px;cursor:help}
+.nb{display:inline-block;padding:0 5px;border-radius:3px;font-size:10.5px;
+  border:1px dashed #5A6270;color:#AEB7C2;white-space:nowrap}
+.ctl{font-size:12px;color:#8a8a95;margin:6px 0 0}
+.ctl button{background:#26262c;color:#c9c9d2;border:1px solid #3a3a42;border-radius:4px;
+  padding:2px 9px;margin-right:5px;font-size:11.5px;cursor:pointer}
+.ctl button.on{background:#3a5c8a;border-color:#5a86bf;color:#fff}
+.ctl b.glab{color:#8fb4dd;font-weight:600}
+.ctl b.olab{color:#e0b978;font-weight:600}
+#ob button.on{background:#5a4a1f;border-color:#b08d3a;color:#ffe9c2}
+/* ── 分组标题按「重要程度」染色（2026-10-24 用户要求）──────────────────────
+   判据只有两个客观读数：**兵数**（该组今天有几只涨停）＋**最高成色**，不看涨跌幅、不看情绪。
+   红=有兵有高度 · 橙=有兵或很高 · 蓝灰=中等 · 暗灰=单兵。
+   颜色只解决「一眼扫出哪条链有兵」，不构成强弱判断，更不是买卖建议。 */
+tr.gh td{border-top:2px solid var(--ghb,#4a6a92);border-left:5px solid var(--ghb,#4a6a92);
+  background:var(--ghbg,#232a33);color:var(--ghfg,#cfe0f5);font-weight:600;font-size:11.5px;letter-spacing:.2px}
+tr.gh .ghn{color:#8fb4dd;font-weight:400}
+tr.gh .ghl{color:#e0b978;font-weight:400;margin-left:6px}
+tr.gh.h4{--ghbg:#3E1418;--ghb:#E5484D;--ghfg:#FFDCDC}
+tr.gh.h3{--ghbg:#33201A;--ghb:#E07A3A;--ghfg:#FFDCC4}
+tr.gh.h2{--ghbg:#232A33;--ghb:#4A6A92;--ghfg:#CFE0F5}
+tr.gh.h1{--ghbg:#1B2027;--ghb:#39424E;--ghfg:#9AA7B6}
+/* 未归类桶（归因未归链/主业未归链/无行业）**不参与评级**：
+   它的「兵数」是归因失败的残渣，不是资金聚集。给 9 只未归链打「主线级」红色＝把垃圾桶当主线。 */
+tr.gh.hu{--ghbg:#1A1D21;--ghb:#5A6270;--ghfg:#AEB7C2}
+tr.gh.hu td{border-top:2px dashed #5A6270;border-left:5px solid #5A6270;font-weight:500}
+tr.gh.hu .hv{background:none;border:1px dashed #5A6270;color:#98A2AE}
+tr.gh .hv{display:inline-block;margin-left:8px;padding:0 6px;border-radius:3px;
+  font-size:10px;font-weight:700;letter-spacing:.5px}
+tr.gh.h4 .hv{background:#E5484D;color:#fff}
+tr.gh.h3 .hv{background:#E07A3A;color:#1b1b1f}
+tr.gh.h2 .hv{background:#4A6A92;color:#fff}
+tr.gh.h1 .hv{background:#39424E;color:#93a1b0}
+tr.gs td{background:#1e232c;color:#9fb6cf;font-size:11px;font-weight:500;
+  border-top:1px dashed #3a4a5e;border-left:5px solid var(--gsb,#3a4a5e);padding:2px 7px}
+tr.gs.h4{--gsb:#E5484D;color:#E9B3B5}
+tr.gs.h3{--gsb:#E07A3A;color:#E0BFA6}
+tr.gs.h2{--gsb:#4A6A92}
+tr.gs.h1{--gsb:#39424E;color:#8b98a7}
+tr.gs .ghn{color:#6d7f93;font-weight:400}
+
+/* Reliability fixes only; retain the original 6060 visual treatment. */
+h2[id],#dualrow,[id^="pk_"]{scroll-margin-top:60px}
+#health-banner{color:#e9a0a0;border-left:3px solid #a04a4a;padding:4px 8px;font-size:12px}
+#health-banner[hidden]{display:none}
+#watch-records{margin:10px 0;font-size:12px}#watch-records summary{cursor:pointer;color:#8fb4dd}
+#watch-records .watch-scroll{overflow-x:auto;margin-top:6px}#watch-records td{vertical-align:top}#watch-records th,#watch-records td{white-space:nowrap}#watch-records .tag{background:#3a7abf}#watch-records tr.t-zd .tag{background:#b04a4a}
+#watch-records button{background:#26262c;color:#c9c9d2;border:1px solid #3a3a42;border-radius:4px;padding:3px 9px;cursor:pointer}
+a:focus-visible,button:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid #8fb4dd;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+.researchctl{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.researchctl input,.researchctl select,.product-form input,.product-form select,.product-form textarea{background:#202127;color:#ddd;border:1px solid #454650;padding:5px;border-radius:3px;font:inherit}
+.researchctl button,.product-btn{background:#292b34;color:#aaccf0;border:1px solid #495365;border-radius:3px;padding:4px 9px;cursor:pointer;font:inherit}
+.rule-pass{color:#9ec9a6}.rule-fail{color:#e49999}.rule-unknown{color:#d8bd79}
+#researchmeta{line-height:1.8}#tb2 td{vertical-align:top}#tb2 td:nth-child(2){min-width:100px}#tb2 td:nth-child(6){max-width:250px}#tb2 td:nth-child(7){max-width:270px}
+#product-drawer{width:min(1030px,88vw);max-height:87vh;overflow:auto;background:#1b1c21;color:#d7d7df;border:1px solid #505563;border-radius:7px;padding:18px;font-size:12.5px}
+#product-drawer::backdrop{background:#0009}#product-drawer th,#product-drawer td{white-space:normal;vertical-align:top}#product-drawer h3{margin:14px 0 7px}#product-drawer .drawer-head{display:flex;justify-content:space-between;gap:15px;position:sticky;top:-18px;background:#1b1c21;padding:8px 0;z-index:2}
+.product-form{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;align-items:center}.product-form label{display:flex;gap:5px;align-items:center}.product-form textarea{width:100%}
+#product-events{max-height:260px;overflow:auto}.daily-chart{width:100%;height:130px;background:#17181c}.shared-list{max-height:340px;overflow:auto}
+#tb2 th{position:sticky;top:34px;z-index:2;background:#282931}#tb2 td:nth-child(2){position:sticky;left:0;background:#1e2026}#tb4 .candline td{white-space:normal}
+#compact-nav{display:none}@media(max-width:1100px){#compact-nav{display:block;position:fixed;right:12px;bottom:12px;z-index:1005;background:#252630;color:#d7dce9;border:1px solid #607080;padding:6px;border-radius:4px;font:inherit;max-width:165px}}
+</style><link rel="stylesheet" href="/product-v2.css"></head><body>
+<select id="compact-nav" aria-label="跳转区块" onchange="location.hash=this.value"><option value="">跳转区块…</option><option value="dualrow">① 双闸对照</option><option value="h2lib">② 库数据</option><option value="h2p">③ 盘口质量</option><option value="h2f">④ 焦点实时榜</option><option value="h2m">⑤ 策略研究</option><option value="h2c">⑥ 补涨样本</option><option value="h2a">⑦ 同向性检查</option><option value="h2w">⑧ 自选观察</option><option value="h2lab">⑨ 策略实验</option></select>
+<div id="side">
+<div class="sbrand">盘中看板<br><span class="meta" style="font-size:10.5px">v2 · 双闸对照</span></div>
+<div id="squick"><span class="sl">大盘速读（随刷新更新）</span>启动中…</div>
+<nav id="snav">
+<a id="sn_dualrow" href="#dualrow" data-t="dualrow">① 双闸对照</a>
+<a id="sn_h2lib" href="#h2lib" data-t="h2lib">② 库数据</a>
+<a id="sn_h2p" href="#h2p" data-t="h2p">③ 盘口质量</a>
+<a id="sn_h2f" href="#h2f" data-t="h2f">④ 焦点实时榜</a>
+<a id="sn_h2m" href="#h2m" data-t="h2m">⑤ 策略研究</a>
+<a id="sn_h2c" href="#h2c" data-t="h2c">⑥ 补涨候选</a>
+<a id="sn_h2a" href="#h2a" data-t="h2a">⑦ 同向性检查</a>
+<a id="sn_h2w" href="#h2w" data-t="h2w">⑧ 自选观察</a><a id="sn_h2lab" href="#h2lab" data-t="h2lab">⑨ 策略实验</a>
+</nav>
+<div class="sfoot" id="stime"></div>
+</div>
+<div id="bar"><span id="bst">启动中…</span><span id="blamp"></span><span id="bidx"></span><span id="bsent"></span></div>
+<div id="service-banner" role="status" aria-live="polite">连接研究服务…</div><div id="hd"><h1>盘中实时看板 · <span id="dd" class="meta"></span>　<span style="font-size:12px;color:#f0c46a;border:1px solid #6b5a2a;border-radius:5px;padding:1px 7px">v2 · 双闸对照（2026-10-25 方案，C 级草案）</span></h1>
+<p class="meta" id="st">启动中…</p><span class="meta" id="datahealth" role="status">等待数据</span><p id="health-banner" role="status" hidden></p>
+<p class="idx" id="idx"></p>
+<p class="sent" id="sent"></p>
+<details id="lg"><summary>口径说明（点开看：个股画像 / 主归属 / 错位度 / 分组配色）</summary>
+<p class="meta">个股画像：<b>核心业务</b>＝最新报告期主营构成占比最高项（东财 F10，标〔日期报〕＝该期只有地区口径、已回退到更早一期）｜<b>主业链·环节</b>（标 ≈ 为申万行业/材料化工兜底，属近似）｜<b>今日归因</b>＝当日最相关题材（0—100 分，五因子打分）｜<b>题材（主归属）·梯队</b>＝该票当日<b>唯一</b>归属题材（其标签中今日涨停家数最多者）及该题材的涨停家数/中军/判定，<b>梯队与龙头同源</b>；括号「/标N」＝挂该标签的涨停总数（含主归属在别处的票）｜二者是两个概念：<b>归因＝为什么涨，主归属＝算在谁的梯队里</b>，两者<b>跨链</b>不一致时场景格标 <span class="apx">⚠</span>（同链换环节不标）｜<b>错位度</b>：<span class="lay l-main">主业驱动</span> 涨的是自己的生意 · <span class="lay l-spill">链内外溢</span> 同链换环节 · <span class="lay l-chase">跨链蹭概念</span> 情绪票 · <span class="lay l-none">未归链</span> 匹配不上不硬编 · <span class="apx">≈</span>＝主业是推的，错位度仅供参考</p>
+<p class="meta">盘口分组标题的<b>颜色＝重要程度</b>（分数＝兵数×10＋最高成色×0.5，<b>组间顺序与颜色同源</b>）：<span style="background:#3E1418;border-left:4px solid #E5484D;color:#FFDCDC;padding:1px 8px">主线级 ≥120</span> <span style="background:#33201A;border-left:4px solid #E07A3A;color:#FFDCC4;padding:1px 8px">有兵团 80—119</span> <span style="background:#232A33;border-left:4px solid #4A6A92;color:#CFE0F5;padding:1px 8px">零星 45—79</span> <span style="background:#1B2027;border-left:4px solid #39424E;color:#9AA7B6;padding:1px 8px">单兵 &lt;45</span> <span style="background:#1A1D21;border-left:4px dashed #5A6270;color:#AEB7C2;padding:1px 8px">未归类·不评级</span>　只回答「先看哪块」，不是强弱判断、更不是买卖建议。<b>「未归类」桶永远沉底且不评级</b>——它的兵数是归因没覆盖到的残渣，不是资金在那条线上聚集。</p>
+</details>
+<p class="warn" id="wn"></p></div>
+<div id="dualrow"><div id="dualA" class="dualcard"></div><div id="dualB" class="dualcard"></div></div>
+<div id="dualcombo" class="dualcombo"></div>
+<h2 id="h2lib">库数据 · 题材 / 资金 / ETF / 共振</h2>
+<p class="meta" id="libmeta">加载中…</p>
+<div id="lib"></div>
+<h2 id="h2p">盘口质量</h2>
+<div class="ctl" id="ctl"><b class="glab">分组</b>：
+<span id="gb"></span>　<b class="olab">排序</b>：<span id="ob"></span>
+<span class="mt" id="ginfo"></span></div>
+<p class="meta"><span id="watchn"></span><b>点行展开该股研究入口；“共享题材池”单独查看同桶成员</b>。成员归属不代表带动关系，策略条件在研究区逐项核验。入选：池内涨停 ∪ 连板≥3 ∪ 焦点龙头（其余涨停不列）。<b>角色＝多标签可并存</b>：空间龙＝全市场连板最高；总龙头/板块龙头/首板龙头＝题材内连板最高（≥5板/2–4板/1板分级）；日内龙＝题材内最先涨停；早盘板＝首封≤10:30；助攻＝龙头封板后30分钟内跟进；补涨＝龙头≥5板时的题材内首板；换手龙＝连板≥2且换手15–30%；一字龙＝换手&lt;3%且封单厚；天量换手＝换手&gt;20%（出货嫌疑）；独苗＝题材仅一只涨停；跟风＝其余。<b>成色</b>＝身位32+封单24+炸板扣16+换手14+首封10+带动性4。<b>题材·梯队</b>＝该票当日唯一主归属题材 + 该题材<b>主归属</b>涨停家数/中军数（中军＝流通前3、红盘、不必涨停）→ 成立/缺中军/偏薄/独木难支；龙头＝桶内连板最高（并列取首封最早），与角色标签同一条规则，故一定对得上。卡位龙（老龙头断板日逆势抢涨停者）需前一交易日断板数据，暂不标。</p>
+<table id="tb4"></table>
+<h2 id="h2f">焦点分组浏览（组间涨停合计，组内超额；前14个实时排名样本）</h2><table id="tb1"></table>
+<p class="meta" id="arch"></p>
+<p class="meta" id="pool"></p>
+<h2 id="h2m">策略研究 · 条件核验</h2>
+<div class="researchctl"><label>路径 <select id="strategy-select" aria-label="研究路径"></select></label><label>状态 <select id="research-status"><option value="all">全部</option><option value="confirmed">技术已形成</option><option value="pending">研究待补证</option><option value="forming">技术形成中</option><option value="restricted">工具限制</option><option value="unavailable">数据待修复</option><option value="blocked">条件不符</option><option value="complete">条件齐备·未验证</option></select></label><input id="research-query" placeholder="代码 / 名称 / 主归属题材" aria-label="研究搜索"><button id="research-search">查询</button><button id="research-prev">上一页</button><button id="research-next">下一页</button><button id="research-reorder">更新排序</button><label><input id="research-auto" type="checkbox" checked>自动更新数值（固定本页名单）</label><button id="research-protocol">来源与验证协议</button></div>
+<p class="meta" id="researchmeta">等待策略服务…</p><p class="meta" id="research-counts"></p><p class="meta" id="research-capability"></p>
+<details class="column-settings"><summary>显示列</summary><label><input type="checkbox" data-column="scene" checked>主归属/池层</label><label><input type="checkbox" data-column="evidence" checked>研究证据</label><label><input type="checkbox" data-column="time" checked>数据时刻</label></details>
+<div class="research-scroll"><table id="tb2"></table></div>
+<h2 id="h2c">补涨结构样本（C级假设 · 不代表策略已通过）</h2>
+<p class="meta">此区保留旧算法的结构样本，仅供对照：同一主归属题材的前排与后排关系，并非买点。“低位”仍是旧口径的相对位置，完整日线结构及风险条件请在策略研究中核验。旧稿中的高度比例、断板即退出等经验未经回测，不作独立触发条件。</p>
+<table id="tb5"></table>
+<p class="meta">角色：题材龙头＝该题材连板最高且封单占流通比最大；卡位龙＝其余里首封最早但连板低于龙头；独苗＝该题材仅一只涨停（不是竞争出来的龙头）。封单占流通％＝封板资金/流通市值。</p>
+<h2 id="h2a">同向性检查</h2><p class="meta" id="al"></p>
+<h2 id="h2w">自选观察</h2>
+<div id="watch-records">
+<p class="meta">持续自选与原始观察记录分开保存；点击名称看详情，“加入自选”单独操作。不代表持仓。现价每15秒检查源行情，非交易时段显示回看。</p>
+<div class="researchctl"><input id="watch-search" placeholder="搜索代码或名称添加" aria-label="添加自选搜索"><button id="watch-find">搜索添加</button><button id="watch-refresh">刷新观察</button><button id="watch-archive">归档与恢复</button></div>
+<p class="meta" id="watch-status">读取记录…</p><div class="watch-scroll"><table><thead><tr><th>记录池层 / 当前</th><th>标的</th><th>场景 / 风格</th><th>记录时刻 / 基准日</th><th>记录价</th><th>当前价</th><th>当日涨幅</th><th>记录后变化</th><th>源行情时刻</th><th>管理</th></tr></thead><tbody id="watch-body"></tbody></table></div>
+<p class="meta">记录后变化只比较同日有效原始价格；跨日不拼接未复权收益。观察预案提供价格与时限条件提醒，触及失效条件后锁定，编辑预案才重置。</p></div>
+<h2 id="h2lab">策略实验与复盘</h2><div class="researchctl"><button id="strategy-new">登记新研究假设</button><button id="lab-open">新建技术实验</button><button id="lab-cohort">冻结快照/前瞻观察</button><button id="lab-refresh">刷新实验列表</button></div><p class="meta">技术实验、冻结复算与全路径验证分别记录。费用为模型假设，缺历史证据时拒绝假回测；未验证策略不生成交易指令。</p><div class="research-scroll"><table id="lab-table"></table></div>
+<details id="product-event-box"><summary>最近变化与预案提醒（本机记录）</summary><div class="researchctl"><button id="events-refresh">刷新提醒</button><a href="/api/events.csv" download>导出提醒CSV</a><label><input id="events-unread" type="checkbox">只看未确认</label></div><div id="product-events"></div></details>
+<dialog id="product-drawer" aria-label="证券研究详情"><div class="drawer-head"><b id="drawer-title"></b><button class="product-btn" id="drawer-close">关闭</button></div><div id="drawer-content"></div></dialog>
+<p class="meta" style="margin-top:26px">工具只产读数不产判断 · 下单以行情软件为准 ·
+口径与 intraday_scan 一致（compute_readings 唯一定义）· 盘中 15s 自动刷新 · 收盘后自动降频(10分钟)</p>
+<script>
+function f(v,s){return (v===null||v===undefined||v==='')?'—':v+(s||'');}
+
+const CANDIDATE_OPEN=new Set();
+let CURRENT=null, CONNECTION_OK=true, WATCHES=[], WATCH_REQUEST=0, REFRESHING=false, LAST_HEALTH_LEVEL='';
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function chinaTime(v){if(!v)return NaN;let s=String(v);if(/^\d{14}$/.test(s))s=s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8)+'T'+s.slice(8,10)+':'+s.slice(10,12)+':'+s.slice(12,14);else s=s.replace(' ','T');return Date.parse(s+(s.match(/Z$|[+-]\d\d:\d\d$/)?'':'+08:00'));}
+function healthOf(d,connected,now=Date.now()){
+ if(!connected)return {level:'bad',label:'连接中断',detail:'刷新失败，页面保留的是上次成功读数，请停止依赖实时变化。'};
+ if(!d||d.booting)return {level:'warn',label:'等待数据',detail:'首份有效行情尚未就绪。'};
+ const parts=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(now));
+ const day=parts.slice(0,10),hm=parts.slice(11,16),wd=new Date(day+'T12:00:00+08:00').getUTCDay();
+ const marketWindow=d.calendar_open!==false&&wd>0&&wd<6&&((hm>='09:30'&&hm<='11:30')||(hm>='13:00'&&hm<='15:00'));
+ const quote=chinaTime(d.quote_time),snapshot=chinaTime(d.taken_at);
+ if(!Number.isFinite(quote)||!d.quote_date)return {level:'warn',label:'源时间未知',detail:'无法验证行情新鲜度，抓取时刻不能替代行情所属时间。'};
+ if(!Number.isFinite(snapshot)||quote>now+60000||snapshot>now+60000)return {level:'bad',label:'时钟异常',detail:'源行情或服务时刻异常，请核对时间后再使用。'};
+ if(marketWindow&&(now-quote>90000||now-snapshot>90000))return {level:'bad',label:'行情滞后',detail:'常规交易时段内，源行情或快照已超过90秒；也可能处于休市日，请核对交易日历。'};
+ if(!marketWindow)return {level:'warn',label:'非连续交易时段',detail:'当前展示最近行情；午休、收盘与休市期间，静止读数不代表新成交。'};
+ return {level:'ok',label:'行情时间已核验',detail:'源行情 '+String(d.quote_time)+' · 快照 '+d.taken_at+'；仅反映已取得样本的时效。'};
+}
+function canCompareWatch(w,q,d,connected){
+ const day=String(w.data_date||"").replaceAll("-","");
+ return Number(q.price)>0&&Number(w.entry_price)>0&&day===String(d?.quote_date||"").replaceAll("-","")&&String(w.ts||"").slice(0,10).replaceAll("-","")===day&&Number.isFinite(chinaTime(q.quote_time))&&String(q.quote_time).slice(0,8)===day&&healthOf({...d,quote_time:q.quote_time},connected).level!=="bad";
+}
+
+function updateHealth(){
+ const h=healthOf(CURRENT,CONNECTION_OK),status=document.getElementById('datahealth'),banner=document.getElementById('health-banner');
+ if(status){status.textContent=h.label;status.title=h.detail;status.style.color=h.level==='bad'?'#e9a0a0':h.level==='warn'?'#e0b978':'#a6c5ac';}
+ if(banner){banner.hidden=h.level!=='bad'&&h.label!=='源时间未知';banner.textContent=h.detail;}
+ if(typeof renderServiceStatus==='function')renderServiceStatus();
+ if(h.level!==LAST_HEALTH_LEVEL){LAST_HEALTH_LEVEL=h.level;renderWatches();}
+}
+async function loadWatches(){
+ const req=++WATCH_REQUEST;
+ try{const r=await fetch('/api/watches',{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!r.ok)throw Error('http');const data=await r.json();if(req!==WATCH_REQUEST)return;WATCHES=data.records||[];renderWatches();}
+ catch(e){document.getElementById('watch-status').textContent='观察记录读取失败，请刷新重试。';}
+}
+function watchQuoteHealth(q,d,connected){
+ const t=String(q.quote_time||'');
+ return healthOf({...d,quote_time:t,quote_date:t.length>=8?t.slice(0,4)+'-'+t.slice(4,6)+'-'+t.slice(6,8):null,taken_at:q.fetched_at||d?.taken_at},connected);
+}
+function renderWatches(){
+ const quotes=CURRENT?.watch_quotes||{},groups=new Map();
+ WATCHES.forEach(w=>{const scene=w.scene||'未分场景';if(!groups.has(scene))groups.set(scene,[]);groups.get(scene).push(w);});
+ const covered=WATCHES.filter(w=>Number(quotes[w.code]?.price)>0).length;
+ const times=Object.values(quotes).map(q=>q.quote_time).filter(Boolean).sort();
+ document.getElementById('watch-status').textContent='今日 '+WATCHES.length+' 条观察 · 报价覆盖 '+covered+'/'+WATCHES.length+' · 最新源行情 '+(times.length?formatQuoteTime(times[times.length-1]):'等待行情')+' · 每15秒更新';
+ let html='';
+ groups.forEach((items,scene)=>{
+  html+=`<tr class="gh h2"><td colspan="10">◤ ${esc(scene)} <span class="ghn">${items.length} 条观察</span></td></tr>`;
+  items.forEach(w=>{const q=quotes[w.code]||{},price=Number(q.price),entry=Number(w.entry_price),h=watchQuoteHealth(q,CURRENT,CONNECTION_OK);
+   const perQuoteState={...CURRENT,taken_at:q.fetched_at||CURRENT?.taken_at};
+   const comparable=canCompareWatch(w,q,perQuoteState,CONNECTION_OK);
+   const day=String(w.data_date||'').replaceAll('-','');
+   const currentDay=String(q.quote_time||'').slice(0,8);
+   const replay=day!==currentDay||String(w.ts||'').slice(0,10).replaceAll('-','')!==day;
+   const why=!(price>0)?'未取得报价':h.level==='bad'?h.label:replay?'跨日 / 回看基准':!(entry>0)?'记录价缺失':'时间待核验';
+   const change=comparable?((price/entry-1)*100):null;
+   const tier=(CURRENT?.candidates||[]).find(x=>x.code===w.code)?.['池层']||'自选';
+   const cls=tier==='核心'?'t-zd':'t-gc';
+   const colored=v=>v==null?'—':`<span class="${v>0?'up':v<0?'dn':''}">${v>0?'+':''}${Number(v).toFixed(2)}%</span>`;
+   html+=`<tr class="${cls}"><td><span class="tag ${tier==='核心'?'t-zd':'t-gc'}">${esc(tier)}</span></td><td><b>${esc(w.name||w.code)}</b><br><span class="mt">${esc(w.code)}</span></td><td>${esc(scene)}</td><td title="${esc(w.ts||'')}">${esc(String(w.ts||'').slice(11)||'—')}<br><span class="mt">基准 ${esc(w.data_date||'未知')}</span></td><td>${esc(f(w.entry_price))}</td><td>${price>0?price.toFixed(2):'—'}</td><td>${colored(q.pct)}</td><td>${change==null?`<span class="mt" title="历史记录保留原始基准，不用当前报价补造收益">— · ${why}</span>`:colored(change)}</td><td title="${esc(formatQuoteTime(q.quote_time))}">${esc(formatQuoteTime(q.quote_time).slice(11)||'—')}<br><span class="mt">${esc(formatQuoteTime(q.quote_time).slice(0,10))}</span></td><td><span class="${h.level==='bad'?'warn':'mt'}">${price>0?esc(h.level==='ok'?'实时源报价':h.label):'报价缺失'}</span></td></tr>`;
+  });
+ });
+ document.getElementById('watch-body').innerHTML=html||'<tr><td colspan="10" class="meta">暂无观察。到“盘口质量”展开相关候选，点击标的加入。</td></tr>';
+}
+function formatQuoteTime(v){const s=String(v||'');return /^\d{14}$/.test(s)?s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8)+' '+s.slice(8,10)+':'+s.slice(10,12)+':'+s.slice(12,14):s||'—';}
+function restoreCandidateExpansion(){
+ CANDIDATE_OPEN.forEach(code=>{const tr=document.getElementById('pk_'+code),z=(window.PK||[]).find(x=>x.code===code);if(tr&&z&&!tr.nextElementSibling?.classList.contains('candline')){tr.insertAdjacentHTML('afterend',candRow(z));tr.classList.add('cxopen');tr.setAttribute('aria-expanded','true');}});
+ document.querySelectorAll('#tb4 tr[id^="pk_"]').forEach(tr=>{tr.tabIndex=0;tr.setAttribute('aria-expanded',String(CANDIDATE_OPEN.has(tr.id.slice(3))));tr.setAttribute('aria-label','展开 '+(tr.querySelector('td:nth-child(3)')?.textContent||'标的')+' 的相关观察候选');});
+}
+
+document.getElementById('sn_h2w').addEventListener('click',loadWatches);
+document.getElementById('tb4').addEventListener('keydown',e=>{if(e.target.matches('tr[id^="pk_"]')&&(e.key==='Enter'||e.key===' ')){e.preventDefault();e.target.click();}});
+
+function tag(t){const c={'重点':'t-zd','观察':'t-gc','环节':'t-hj'}[t]||'';return `<span class="tag ${c}">${t}</span>`;}
+function arr(v,c){return (v>0?`<span class="up">↑</span>`:v<0?`<span class="dn">↓</span>`:'＝');}
+function row(h){return `<tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>`;}
+/* 焦点实时榜的「梯队」＝**篮子口径**：挂该标签的全部涨停。
+   它回答「这条主线今天有多少兵、结构全不全」；括号里的主归属家数＝其中多少只是「以它为主逻辑」。
+   差额＝这些兵被更具体的题材认领了（一票一桶），主线的兵数不因此减少。
+   个股视图（盘口/候选/补涨）才用主归属口径。 */
+function lad(L){if(!L)return '—';
+ /* 焦点实时榜的「梯队」＝**篮子口径**：挂该标签的全部涨停。
+    它回答「这条主线今天有多少兵、结构全不全」；括号里的主归属家数＝其中多少只是「以它为主逻辑」。
+    差额＝这些兵被更具体的题材认领了（一票一桶），主线的兵数不因此减少。
+    个股视图（盘口/候选/补涨）才用主归属口径。
+    兼容旧快照：字段不齐时**不混拼两套口径**——混拼会出「4家(主归属0)/0中军·无涨停」这种自相矛盾格。*/
+ const raw=L['涨停标签'];
+ if(raw==null){const m=L['涨停'];
+   return m?`${m}家/${L['中军']}中军·${L['判定']||''}`:'—';}
+ const own=L['涨停'];
+ const tg=(own!=null&&own!==raw)
+   ?`<span class="mt" title="篮子口径 ${raw} 家＝挂着这个标签的全部涨停；其中以它为主逻辑（主归属）${own} 家。差额被更具体的题材认领（一票一桶），不代表这条主线没兵。">(主归属${own})</span>`:'';
+ if(L['判定标签']==null)return `<span class="lad-bad">${raw}家${tg}</span>`;
+ const nm=L['中军标签'],j=L['判定标签'],ok=j==='成立';
+ return `<span class="${ok?'lad-ok':'lad-bad'}">${raw}家${tg}/${nm}中军·${j}</span>`;}
+/* 归因链 ≠ 场景链 才算错位（同一链内换个环节不算——先导基电「存储芯片→国产芯片」同属半导体链） */
+function chainOff(x){const a=PF(x).chain_only||'',b=x['场景链']||'';return !!a&&a!==b;}
+/* ══════ 场景格：梯队/龙头到底属于哪个题材，必须写在格子里 ══════
+   2026-10-24 用户报错根因：旧版盘口/补涨表只显示「该题材梯队」「题材龙头」，
+   **从不显示是哪个题材的**梯队；读者只能拿同一行的「今日归因」去对——
+   于是「固态电池」那一行显示的是长江三角的梯队龙头（上海九百）。
+   现在：场景名（＝该票当日唯一主归属题材）+ 家数 + 判定 + 龙头，全在一个桶里出。
+   opt.head=false 时不输出龙头行（补涨表龙头单独一列）。*/
+function sceneCell(z,opt){
+ const o=opt||{};
+ const th=z['题材']||z['场景']||'';
+ if(!th)return '<td>—</td>';
+ const n=z['梯队涨停'], nt=z['梯队涨停标签'];
+ const tag=(nt!=null&&nt!==n)?`<span class="mt" title="标签口径家数（含主归属在别处的票）">/标${nt}</span>`:'';
+ const hv=z['龙头']&&z['龙头']!==z['name'];
+ const head=(o.head!==false&&hv)
+   ?`<br><span class="mt">龙头 ${z['龙头']}${z['龙头板']?`（${z['龙头板']}板）`:''}</span>`:'';
+ const off=o.off?' <span class="apx" title="该票的今日归因（五因子）与本次补涨场景不是同一个题材——补涨逻辑与当日驱动不一致，需自行判断">⚠</span>':'';
+ /* 盘口行的两口径分歧（2026-10-24 用户问赛福天/南方路机）：主归属链 ≠ 归因链 时同样标 ⚠——
+    赛福天主归属人形机器人（腱绳叙事、19家）、归因却是 TOPCon 主业驱动；两行并排读必然困惑，
+    必须在题材格上把分歧显式标出来。 */
+ const mm=(!o.off&&z['主链']&&PF(z).chain_only&&z['主链']!==PF(z).chain_only)
+   ?` <span class="apx" title="主归属链（${z['主链']}）与今日归因链（${PF(z).chain_only}）不一致：梯队算在主归属桶，为什么涨看归因列——两个口径各自成立但叙事不同，需自行判断">⚠</span>`:'';
+ return `<td><b>${th}</b>${off}${mm} <span class="mt">${n!=null?`${n}家${tag}·`:''}${z['梯队']||'—'}</span>${head}</td>`;
+}
+function brk(t){return (t&&t.length)?`<span class="brk">${t.join(' ')}</span>`:'—';}
+/* 角色标签：按「·」拆开逐段染色。
+   旧写法 `{'空间龙':'rl-x',...}[r]` 用**整串**查表，而服务端的 r 是复合标签
+   （『空间龙·总龙头·天量换手』），查不到就落到 rl-f 跟风的深灰底——
+   最强的票被画成最不起眼的颜色，用户报的「没有重点标出来」就是这个。*/
+const RCLS={'空间龙':'rl-x','总龙头':'rl-h','板块龙头':'rl-s','首板龙头':'rl-1',
+ '日内龙':'rl-k','早盘板':'rl-e','助攻':'rl-a','补涨':'rl-b','换手龙':'rl-t',
+ '一字龙':'rl-y','天量换手':'rl-v','独苗':'rl-d','跟风':'rl-f'};
+function roleTag(r){if(!r)return '—';
+ return r.split('·').filter(Boolean)
+   .map(x=>`<span class="rl ${RCLS[x]||'rl-f'}">${x}</span>`).join('');}
+/* 形态标签（2026-10-27）：空心小标，与角色分开渲染。
+   为什么不一并塞进「角色」串：角色参与 RANK 排序与龙头判定，形态不参与；
+   混在一起会让「一字板」被当成角色去比优先级，排序就乱了。 */
+const FCLS={'一字板':'fm-yz','T字板':'fm-tz','地天板':'fm-dt','天地板':'fm-td',
+ '回封':'fm-hf','竞价板':'fm-jj','尾盘板':'fm-wp'};
+const FTIP={'一字板':'全天只有一个价：开盘即封死，没有波动——隔夜资金一致预期最强',
+ 'T字板':'开盘涨停→盘中打开→收盘回封，说明有分歧但被买回',
+ '地天板':'最低摸过跌停、收盘涨停，日内反转最强',
+ '天地板':'最高摸过涨停、收盘跌停，最伤人气',
+ '回封':'今日曾炸板后重新封上',
+ '竞价板':'09:25 集合竞价就封死',
+ '尾盘板':'14:30 后才封板，接力意愿弱'};
+function formTag(r){if(!r)return '';
+ return r.split('·').filter(Boolean)
+   .map(x=>`<span class="fm ${FCLS[x]||''}" title="${FTIP[x]||'K线形态'}">${x}</span>`).join('');}
+/* ── 个股画像三件套（服务端已把 z['画像'] 挂到每一行；未抓回来时显示「—」，下一轮自动补）── */
+function PF(z){return z['画像']||{};}
+function cCore(z){const p=PF(z);
+ if(!p.core||p.core==='—')return '<td>—</td>';
+ /* 主营构成取自更早报告期时，把报告期标出来——不标就等于让读者以为是最新的 */
+ const old=(p.core_note&&p.core_note.indexOf('取')>=0)
+   ?` <span class="mt" title="${p.core_note}">〔${p.core_asof}报〕</span>`:'';
+ return `<td class="core">${p.core}${old}</td>`;}
+function cBiz(z){const p=PF(z);
+ const t=p.core_note?` title="${p.core_note}"`:'';
+ const b=p.biz||'';
+ if(b)return `<td class="mt"${t}>${b}</td>`;
+ /* 未归链拆两栏（2026-10-24 用户拍板）：「已核实 19 链覆盖不到」与「规则还没补到」不是一回事。
+    证据字段 ev 以「人工:」开头＝人工核实过（理由在 override 里）；其余＝待补（随词表修订继续收敛）。 */
+ const verified=p.ev&&p.ev.indexOf('人工:')===0;
+ const tip=verified?` title="${(p.ev||'').replace(/"/g,'')}"`
+   :' title="待补：规则还没覆盖到（随词表修订继续收敛），不是已核实覆盖不到"';
+ return `<td class="mt"${tip}><span class="nb">${verified?'非题材·已核实':'待补'}</span></td>`;}
+function cAttr(z){const p=PF(z);
+ if(!p.theme)return '<td>—</td>';
+ /* 归因未归产业时不再留白：回退显示归位类目（平台生态·华为／地域区域／政策主题…），
+    全量透明（2026-10-25 用户要求：任何细节不许隐形） */
+ const _cl=(window._CCLS||{})[p.theme];
+ const _cls=(!_nc(p.chain)&&_cl&&_cl['类目']&&_cl['类目']!=='产业题材')
+   ?`<br><span class="mt">${_cl['类目']}${_cl['主题域']?'·'+_cl['主题域']:''}</span>`:'';
+ /* 代位归因没有资金分（行业代位/主业代位），分数位显示「代位」二字，别让人当成 0 分证据 */
+ const sc=(p.score==null)?'<span class="mt">代位</span>':`<i class="sc">${p.score}</i>`;
+ const sub=p.anchor&&p.anchor.endsWith('代位')?` <span class="mt" title="该票无可用概念标签（北交所标签为空 / 概念全是行业与噪声），按${p.anchor==='行业代位'?'申万行业':'主业链'}代位显示——没有资金读数，不是归因结论">${p.anchor}</span>`:'';
+ return `<td><b>${p.theme}</b> ${sc}${sub}<br><span class="mt">${p.chain||''}</span>${_cls}</td>`;}
+function _nc(v){return !v||v==='—';}
+function cLay(z){const p=PF(z);
+ const c={'主业驱动':'l-main','链内外溢':'l-spill','跨链蹭概念':'l-chase',
+          '行业代位':'l-sub','主业代位':'l-sub'}[p.layer]||'l-none';
+ /* approx＝主业由行业/关键词兜底推定，错位度只作参考，加「≈」提示别当结论用 */
+ const q=p.approx?'<span class="apx" title="主业为行业/关键词兜底推定，错位度仅供参考">≈</span>':'';
+ return `<td><span class="lay ${c}">${p.layer||'—'}${q}</span></td>`;}
+/* ══════ 盘口质量·分组视图（2026-10-24 用户要求：同一题材/归因/行业/主业链放一起，并排序）══════
+   三种「内/外」的读法这里都给了：
+     · 组间·强度  —— 哪条链今天最强先看（默认）
+     · 组内·归因分 —— 同一题材里谁是真龙头（按归因分，不只看成色）
+     · 由内到外   —— 主业驱动 → 链内外溢 → 跨链蹭概念，情绪票沉底
+   分组键取「归因环节」而不是「题材」作默认：题材标签太碎（人形机器人/机器人概念/机器人执行器
+   是同一个炒作单元拆成三行），先按环节聚，再按题材看，才不会把同一批资金拆散。*/
+window.PK=[];
+let GRP='chain', ORD='strength';
+const UN='（归因未归链）';
+const LAYER_RANK={'主业驱动':0,'链内外溢':1,'跨链蹭概念':2,'题材未归链':3,'主业未归链':3,'无题材读数':4,'行业代位':3,'主业代位':3};
+const GMODES={
+ chain:{t:'归因链→环节', k:z=>{const p=PF(z);return p.chain_only||UN;}, sub:true},
+ main:{t:'主归属链（梯队）', k:z=>z['主链']||z['题材']||UN},
+ seg:  {t:'归因环节', k:z=>{const p=PF(z);return p.chain||UN;}},
+ theme:{t:'归因题材', k:z=>{const p=PF(z);return p.theme||'（无归因）';}},
+ biz:  {t:'主业链→环节', k:z=>{const p=PF(z);return p.biz||'（主业未归链）';}},
+ ind:  {t:'申万行业', k:z=>{const p=PF(z);return p.ind||'（无行业）';}},
+ ths:  {t:'同花顺概念', k:z=>((window.THSMAP||{})[z.code]||['（未归类）'])[0]}
+};
+const OMODES={
+ strength:{t:'组内·成色'},
+ score:   {t:'组内·归因分'},
+ inner:   {t:'由内到外（驱动→蹭概念）'}
+};
+function pkRow(z){const _id=z.code?' id="pk_'+z.code+'"':'';
+ return `<tr${_id}><td>${roleTag(z['角色'])}${formTag(z['形态'])}</td><td><b>${z['成色']??'—'}</b></td><td>${z.name}${z['池内']?'':' '}</td>`+
+  `${cCore(z)}${cAttr(z)}${cLay(z)}${cBiz(z)}${sceneCell(z)}<td>${z['连板']}</td><td>${z['首封']}</td>`+
+  `<td>${z['封单亿']}</td><td>${z['封单占流通%']}</td><td>${z['炸板次数']}</td><td>${f(z['涨幅'],'%')}</td></tr>`;
+}
+function segOf(z){const p=PF(z);const c=p.chain||'';const i=c.indexOf('·');
+ if(i>0)return c.slice(i+1);
+ /* 归因是链级大题材（机器人概念/军工——环节为空）时，借主业环节落位：
+    前提是主业链与归因链同链——「机器人概念」27 只里谁是做减速器的谁是做本体的，
+    靠主业细分，比全部挤在「—」里可读得多。跨链不借（借了就是编）。 */
+ if(p.chain_only&&p.biz_chain===p.chain_only&&p.biz_seg)return p.biz_seg+'·主业';
+ return '—';}
+/* 场景（主归属题材）的环节：优先查 题材→链·环节 映射（服务端主题表），
+   映射没有但场景链与归因链同链时借归因环节，跨链一律「—」不硬编 */
+function segOfScene(z){const p=PF(z);
+ const cs=(window._TC||{})[z['场景']||z['题材']]||[];
+ const sg=cs[1]&&String(cs[1]).indexOf('（')<0?cs[1]:'';
+ if(sg)return sg;
+ if(p.chain_only&&p.chain_only===(z['场景链']||p.chain_only))return segOf(z);
+ return '—';}
+/* ══════ 组的重要程度：**顺序和颜色用同一个分数**（2026-10-24）══════
+   score = 兵数×10 + 最高成色×0.5 —— 兵数是主项（这条链今天有几只涨停），成色是修饰项。
+   为什么不用纯成色：昨天出现「1 只涨停但成色 75」的组排在「9 只涨停、成色 74」的组前面，
+   颜色和顺序各说各话。乘 10 保证「多一只兵」永远压过「成色高 20 分」。
+   为什么不用纯兵数：3 只成色 87 的组，比 3 只成色 39 的组更值得先看。
+   阈值 120/80/45 是粗筛，不是评分模型——它只回答「先看哪块」。*/
+function gscore(n,best){return (n||0)*10+(best||0)*0.5;}
+function heat(n,best){const s=gscore(n,best);
+ return s>=120?4:s>=80?3:s>=45?2:1;}
+const HTXT={4:'主线级',3:'有兵团',2:'零星',1:'单兵'};
+/* 未归类桶：键是「装不下」的产物，不是题材。兵数再多也不评级。 */
+function isUN(k){return k===UN||k==='（主业未归链）'||k==='（无行业）';}
+function renderPk(){
+ if(typeof isResearchEditing==='function'&&isResearchEditing())return;
+ const pk=window.PK||[];
+ if(!pk.length){document.getElementById('tb4').innerHTML=
+   '<tr><td colspan="14">（涨停池未取到——盘中会实时拉取）</td></tr>';return;}
+ const mode=GMODES[GRP], key=mode.k, m=new Map();
+ /* 二级环节子标题只在「归因链→环节 + 组内·成色」时启用；
+    其余排序若仍插子标题，同一环节会被打断成多段——宁可不插 */
+ const useSub=(GRP==='chain' && ORD==='strength');
+ pk.forEach(z=>{const k=key(z);if(!m.has(k))m.set(k,[]);m.get(k).push(z);});
+ const gs=[...m.entries()].map(([k,arr])=>{
+   const best=Math.max(...arr.map(x=>x['成色']??0));
+   const sc=Math.max(...arr.map(x=>(PF(x).score??0)));
+   const lc={};arr.forEach(x=>{const l=PF(x).layer||'—';lc[l]=(lc[l]||0)+1;});
+   const dom=Object.entries(lc).sort((a,b)=>b[1]-a[1])[0][0];
+   return {k,arr,best,sc,lc,dom};
+ });
+ /* 组间：未归链永远沉底；其余按「由内到外」或「组内最高成色」 */
+ gs.sort((a,b)=>{
+   const au=isUN(a.k), bu=isUN(b.k);
+   if(au!==bu)return au?1:-1;
+   if(ORD==='inner')return (LAYER_RANK[a.dom]??9)-(LAYER_RANK[b.dom]??9)
+     ||gscore(b.arr.length,b.best)-gscore(a.arr.length,a.best);
+   /* 其余模式：组间一律按重要程度（＝颜色同一个分数），组内才按用户选的模式 */
+   return gscore(b.arr.length,b.best)-gscore(a.arr.length,a.best)
+     ||b.arr.length-a.arr.length;
+ });
+ /* 组内排序：
+   ① 组内·成色  → 先按「环节」聚成小块，小块之间按各自最高成色排（不是按拼音），块内按成色
+   ② 组内·归因分 → 纯按归因分，不插子标题
+   ③ 由内到外   → 先按错位度（驱动→外溢→蹭概念→未归链），同层再按成色 */
+ gs.forEach(g=>{
+   if(useSub){
+     const sb={};g.arr.forEach(z=>{const s=segOf(z);sb[s]=Math.max(sb[s]??0,z['成色']??0);});
+     const ord=Object.keys(sb).sort((a,b)=>sb[b]-sb[a]);
+     const rk={};ord.forEach((s,i)=>rk[s]=i);
+     g.segOrd=ord;
+     g.arr.sort((a,b)=>(rk[segOf(a)]??99)-(rk[segOf(b)]??99)||(b['成色']??0)-(a['成色']??0));
+   } else if(ORD==='score'){
+     g.arr.sort((a,b)=>(PF(b).score??0)-(PF(a).score??0)||(b['成色']??0)-(a['成色']??0));
+   } else {
+     g.arr.sort((a,b)=>{const d=(LAYER_RANK[PF(a).layer]??9)-(LAYER_RANK[PF(b).layer]??9);
+       return d||(b['成色']??0)-(a['成色']??0);});
+   }
+ });
+ let html=row(['角色','成色','名称','核心业务（占比·毛利）','今日归因（分）','错位度','主业链·环节','题材（主归属）·梯队','连板','首封','封单(亿)','占流通%','炸板','涨幅']);
+ gs.forEach(g=>{
+   const ls=Object.entries(g.lc).map(([k,v])=>`${k}${v}`).join('/');
+   const segc={};g.arr.forEach(x=>{const s=segOf(x);segc[s]=(segc[s]||0)+1;});
+   const segTxt=Object.entries(segc).sort((a,b)=>b[1]-a[1])
+      .map(([s,n])=>`${s}${n}`).join('/');
+   const segLine=(useSub?'':`　<span class="ghl">环节 ${segTxt}</span>`);
+   const hg=isUN(g.k)?0:heat(g.arr.length,g.best);
+   const cls=hg?`gh h${hg}`:'gh hu';
+   const hv=hg?`<span class="hv">${HTXT[hg]}</span>`
+     :'<span class="hv" title="这个桶装的是「一条链都没归上」的票，兵数来自归因覆盖不全，不是资金在这条线上聚集。给个高低级会把垃圾桶当主线——所以不评级。">未归类·不评级</span>';
+   html+=`<tr class="${cls}"><td colspan="14">◤ ${g.k}　<span class="ghn">${g.arr.length} 只 · 最高成色 ${g.best} · 最强归因 ${g.sc||'—'}</span>${segLine}<span class="ghl">${ls}</span>${hv}</td></tr>`;
+   let lastSeg=null;
+   g.arr.forEach(z=>{
+     if(useSub){
+       const s=segOf(z);
+       if(s!==lastSeg && s!=='—'){lastSeg=s;
+         const sq=g.arr.filter(x=>segOf(x)===s), sn=sq.length,
+               sb=Math.max(...sq.map(x=>x['成色']??0)), hs=heat(sn,sb);
+         html+=`<tr class="gs h${hs}"><td colspan="14">· ${s}　<span class="ghn">${sn} 只 · 最高成色 ${sb}</span></td></tr>`;}
+     }
+     html+=pkRow(z);
+   });
+ });
+ document.getElementById('tb4').innerHTML=html;
+ document.getElementById('ginfo').textContent=`共 ${gs.length} 组 / ${pk.length} 只`;
+ restoreCandidateExpansion();
+}
+function ctlBtn(txt,on,fn){const b=document.createElement('button');b.textContent=txt;
+ if(on)b.className='on';b.onclick=fn;return b;}
+function mountCtl(){
+ const gb=document.getElementById('gb');gb.innerHTML='';
+ Object.entries(GMODES).forEach(([k,v])=>gb.appendChild(ctlBtn(v.t,k===GRP,()=>{GRP=k;mountCtl();renderPk();})));
+ const ob=document.getElementById('ob');ob.innerHTML='';
+ Object.entries(OMODES).forEach(([k,v])=>ob.appendChild(ctlBtn(v.t,k===ORD,()=>{ORD=k;mountCtl();renderPk();})));
+}
+mountCtl();
+/* 页头滚过后显示细条 + 侧栏滚动高亮（scrollspy：视口顶最近的上一个区块）。
+   兼容性：不用 querySelectorAll/getBoundingClientRect 裸调（静态快照回归的 mock DOM 没有它们）*/
+const _bar=document.getElementById('bar');
+const _secIds=['dualrow','h2lib','h2p','h2f','h2m','h2c','h2a','h2w','h2lab'];
+const _navs={};_secIds.forEach(id=>{_navs[id]=document.getElementById('sn_'+id);});
+function syncBoardNav(){
+ _bar.classList.toggle('on',window.scrollY>170);
+ let cur=_secIds[0];
+ for(const id of _secIds){const el=document.getElementById(id);
+   if(el&&el.getBoundingClientRect&&el.getBoundingClientRect().top<=100)cur=id;}
+ if(window.scrollY+window.innerHeight>=document.documentElement.scrollHeight-100)cur=_secIds[_secIds.length-1];
+ _secIds.forEach(id=>{const a=_navs[id];if(a&&a.classList){a.classList.toggle('cur',id===cur);if(id===cur)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');}});
+}
+window.addEventListener('scroll',syncBoardNav,{passive:true});
+requestAnimationFrame(syncBoardNav);
+function renderLib(L){
+ const box=document.getElementById('lib'),mt=document.getElementById('libmeta');
+ if(!box)return;
+ if(!L||!L.ready){if(mt)mt.textContent='库数据未就绪'+(L&&L.err?'（'+L.err+'）':'');box.innerHTML='<p class="meta">库数据暂不可用，已隐藏上次表格，避免误读。</p>';return;}
+ if(mt)mt.textContent=`题材 ${L.source_dates?.fact_kpl||L.date||'—'} · 资金 ${L.source_dates?.fact_moneyflow||'—'} · ETF行情 ${L.source_dates?.fact_etf_daily||'—'} · 份额 ${L.source_dates?.fact_etf_share||'—'} · 预加载 ${L.asof||'—'}（题材/资金/ETF 为收盘日频；<b style="color:#e8b96a">实时涨停</b> 与 ETF篮子/跨链簇 每 15 秒更新）`+
+  (L.partitions||[]).filter(p=>p.status!=='ok').map(p=>` · ${p.source}:${p.status} ${p.note||''}`).join('');
+ const P=v=>(v>0?'#e07575':(v<0?'#6fae8f':'#9a9aa5'));
+ const num=(v,unit)=>`<span style="color:${P(v)};font-variant-numeric:tabular-nums">${v==null?'—':(v>0?'+':'')+v}${unit||''}</span>`;
+ const card=(title,inner,extra)=>`<div class="dualcard"><h3>${title}${extra?`<span style="float:right;color:#8a8a95;font-weight:400;font-size:11px">${extra}</span>`:''}</h3>${inner}</div>`;
+ const T=(head,rows)=>`<table class="drilltab"><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+
+ // ① 题材榜
+ const ZS=window.ZTSET||new Set();
+ const KM=L.kpl_map||{};
+ const liveZt=t=>{const arr=KM[t]||[];let n=0;for(const c of arr)if(ZS.has(String(c)))n++;return n;};
+ const th=(L.themes||[]).map(t=>{
+   const lz=(L.kpl_map&&(L.kpl_map[t.theme_name]||[]).length)?liveZt(t.theme_name):null;
+   return `<tr><td>${t.theme_name}</td><td style="color:#e07575">${t.zt??'—'}</td>`+
+     `<td style="color:${lz!=null?'#e8b96a':'#5a6270'}">${lz==null?'—':lz}</td>`+
+     `<td style="color:#8a8a95">${t.hot??'—'}</td></tr>`;});
+ // ② 订单净流向（流入+流出）
+ const FE=window.FLOW_EM||null;
+ let fl, ft='收盘·Tushare';
+ if(FE&&FE.ind&&FE.ind.length){
+   ft='实时·东财 '+FE.ts;
+   fl=FE.ind.map(x=>`<tr><td>${x.name}</td><td>${num(x.net,'亿')}</td><td style="color:#8a8a95">${x.rate==null?'—':x.rate+'%'}</td></tr>`);
+ }else{
+   fl=(L.flow_in||[]).map(t=>`<tr><td>${t.chain}</td><td>${num(t.yi,'亿')}</td><td style="color:#8a8a95">${t.n}</td></tr>`)
+   .concat((L.flow_out||[]).map(t=>`<tr><td style="color:#9a9aa5">${t.chain}</td><td>${num(t.yi,'亿')}</td><td style="color:#8a8a95">${t.n}</td></tr>`));
+ }
+ // ③ ETF 估算申赎对价
+ const et=(L.etf||[]).map(t=>`<tr><td>${t.chain}</td><td>${num(t.yi,'亿')}</td><td style="color:#8a8a95">${t.n_etf}</td></tr>`);
+ // ④ ETF篮子关联
+ const rs=(L.resonance||[]).map(t=>`<tr><td>${t.name}</td><td style="color:#e07575">+${t.pct}%</td><td style="color:#9fb6cf;font-size:11.5px">${t.etf||''}</td><td>${num(t.etf_pct,'%')}</td></tr>`);
+ // ⑤ 同花顺概念榜
+ const hs=(L.ths||[]).map(t=>`<tr><td>${t.concept}</td><td style="color:#e07575">${t.zt}</td></tr>`);
+ // ⑥ 跨链新簇
+ const CX=(window.CROSS&&window.CROSS.length?window.CROSS:(L.cross||[]));
+ const cr=CX.map(t=>{
+   const nm=(t.members||'').split('、').slice(0,2).join('·');
+   const r=(t.ratio==null?null:Number(t.ratio));
+   const col=(r==null?'#9a9aa5':(r>=1.5?'#e07575':(r>=1.0?'#d8c07a':'#8a8a95')));
+   return `<tr><td title="${t.members||''}">${nm}</td><td style="color:#8a8a95;font-size:11.5px">${t.chains||''}</td><td style="color:#c9c9d2">${t.zt_today??'—'}<span style="color:#5a6270">/${t.zt_avg20??'—'}</span></td><td style="color:${col};font-weight:600">${r==null?'—':'×'+r.toFixed(2)}</td></tr>`;
+ });
+
+ let h='<div class="librow">';
+ h+=card('题材榜 <span style="color:#5a6270;font-size:11px">开盘啦 · 昨收 / <b style="color:#e8b96a">今日实时涨停</b></span>', T(['题材','昨收','今日实时','人气'],th));
+ h+=card('主力净流向 <span style="color:#5a6270;font-size:11px">亿元·东财口径 · '+ft+'</span>',
+        T(['板块','净额', ft.startsWith('实时')?'占比':'只数'], fl));
+ const am=(window.AMT||[]).map(t=>`<tr><td>${t.chain}</td><td style="color:#c9c9d2">${t.yi}</td><td style="color:#8a8a95">${t.n}</td></tr>`);
+ h+=card('实时成交额 <span style="color:#5a6270;font-size:11px">按链 · <b style="color:#e8b96a">15秒</b> · 非资金流</span>', T(['链','成交额亿','只数'],am), window.AMT_AT||'');
+ h+=card('ETF 估算申赎对价 <span style="color:#5a6270;font-size:11px">亿元 · 收盘日频</span>', T(['链','净申赎','ETF'],et));
+ h+='</div><div class="librow">';
+ h+=card('ETF篮子关联 <span style="color:#5a6270;font-size:11px">涨停票 ∈ ETF 成分</span>', T(['个股','涨幅','持有它的 ETF','ETF 今日'],rs));
+ h+=card('跨链新簇 <span style="color:#5a6270;font-size:11px">加速榜 · 实时</span>', T(['主题簇','跨链','今日/均','倍数'],cr));
+ h+='</div>';
+
+ // ⑦ 涨停 20 日柱 + ETF 5 日趋势
+ const H=(L.history||[]).slice(-20);
+ let hh='';
+ if(H.length){
+   const mx=Math.max(...H.map(x=>x.n),1);
+   let bars='';
+   H.forEach((x,i)=>{
+     const bh=Math.max(2,Math.round(x.n/mx*46));
+     const col=(i===H.length-1)?'#c96a6a':'#4a6a8a';
+     bars+=`<rect x="${i*14}" y="${48-bh}" width="9" height="${bh}" fill="${col}" rx="1"><title>${x.date} ${x.n}家</title></rect>`;
+   });
+   hh+=`<div style="display:flex;align-items:flex-end;gap:10px"><svg width="${H.length*14}" height="52">${bars}</svg>
+        <span class="meta">区间 ${Math.min(...H.map(x=>x.n))}–${mx} 家 · 今日 ${H[H.length-1].n}</span></div>`;
+ } else hh+='<span class="meta">暂无历史</span>';
+ const E5=L.etf5||{};
+ if((E5.dates||[]).length>1){
+   const by={}; (E5.rows||[]).forEach(r=>{(by[r.chain]=by[r.chain]||{})[r.date]=r.yi;});
+   const chs=Object.keys(by).slice(0,6);
+   const rows=chs.map(c=>`<tr><td>${c}</td>${E5.dates.map(d=>`<td>${num(by[c][d])}</td>`).join('')}</tr>`);
+   hh+=`<div style="margin-top:8px">${T(['链'].concat(E5.dates.map(d=>d.slice(5))),rows)}</div>`;
+ }
+ const cLine=(L.ths||[]).length
+   ? `<div class="meta" style="margin-top:8px">同花顺概念榜（涨停家数）：${(L.ths||[]).map(t=>`<span style="color:#c9c9d2">${t.concept}</span> <span style="color:#e07575">${t.zt}</span>`).join('　')}</div>`
+   : '<div class="meta" style="margin-top:8px">同花顺概念榜：今日涨停未命中产业概念</div>';
+ h+='<div class="librow">';
+ h+=card('涨停家数 <span style="color:#5a6270;font-size:11px">近 20 个交易日</span>', hh+cLine);
+ h+='</div>';
+
+ box.innerHTML=h;
+ if(mt)mt.textContent=`题材 ${L.source_dates?.fact_kpl||L.date||'—'} · 资金 ${L.source_dates?.fact_moneyflow||'—'} · ETF行情 ${L.source_dates?.fact_etf_daily||'—'} · 份额 ${L.source_dates?.fact_etf_share||'—'} · 预加载 ${L.asof||'—'}（非实时资金流）`+
+  (L.partitions||[]).filter(p=>p.status!=='ok').map(p=>` · ${p.source}:${p.status} ${p.note||''}`).join('');
+}
+function candRow(z){
+ const cs=z['候选']||[];
+ if(!cs.length) return `<tr class="candline"><td colspan="14"><span class="candhd">同桶未涨停观察候选</span><span class="cm" style="color:#6f7885">暂无：该桶其余票没有「在动」的（盘前池内、非ST、量比≥1.2且额≥3000万；涨幅上限按真实涨停价折算）</span></td></tr>`;
+ const items=cs.map(c=>`<span class="candit" onclick="watchCand('${c.code}','${(c.name||'').replace(/'/g,'')}','${(z['题材']||'').replace(/'/g,'')}',${c.pct},${c.price||0})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" title="点击记录观察，不代表买入"><b>${c.name}</b><span class="cp">+${c.pct}%</span><span class="cm">${c.why||''}</span></span>`).join('');
+ return `<tr class="candline"><td colspan="14"><span class="candhd">相关观察候选（同桶·未涨停·在动）</span>${items}`+
+        `<span class="cm" style="color:#4f5866;margin-left:10px">点该行收起</span></td></tr>`;
+}
+function watchCand(code,name,scene,pct,price){
+ fetch('/api/watch',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({code,name,scene,pct,price})})
+  .then(r=>r.json()).then(d=>{
+    if(d.ok){ toast(`已记录 ${name}（今日共 ${d.n} 条）`);loadWatches(); }
+    else { toast('记录失败：'+(d.err||'')); }
+  }).catch(()=>toast('记录失败（网络）'));
+}
+function toast(msg){
+ let el=document.getElementById('_toast');
+ if(!el){el=document.createElement('div');el.id='_toast';el.className='toast';document.body.appendChild(el);}
+ el.textContent=msg; el.style.opacity=1;
+ clearTimeout(el._t); el._t=setTimeout(()=>{el.style.opacity=0},1800);
+}
+function bindCand(){
+ const tb=document.getElementById('tb4');
+ if(!tb||tb._candBound) return;
+ tb._candBound=1;
+ tb.addEventListener('click',e=>{
+  const tr=e.target.closest('tr[id^="pk_"]');
+  if(!tr||e.target.closest('button,a,input,select')) return;
+  const nx=tr.nextElementSibling;
+  if(nx&&nx.classList.contains('candline')){nx.remove();tr.classList.remove('cxopen');CANDIDATE_OPEN.delete(tr.id.slice(3));tr.setAttribute('aria-expanded','false');return;}
+  const z=(window.PK||[]).find(x=>('pk_'+x.code)===tr.id);
+  if(!z) return;
+  tr.insertAdjacentHTML('afterend',candRow(z));
+  tr.classList.add('cxopen');CANDIDATE_OPEN.add(z.code);tr.setAttribute('aria-expanded','true');
+ });
+}
+async function tick(){
+ if(REFRESHING)return;REFRESHING=true;
+ const _age=(d)=>(Date.now()-new Date(d.taken_at.replace(' ','T')).getTime())/1000;
+ try{
+  const d=await (await fetch('/api/state?ts='+Date.now(), {cache:'no-store',signal:AbortSignal.timeout(10000)})).json();
+  if(d.booting){CURRENT=d;CONNECTION_OK=true;updateHealth();document.getElementById('st').textContent='启动中… '+((d.warn||[]).join(' ｜ ')||'正在拉取第一份快照');
+   const _w=document.getElementById('wn');if(_w)_w.innerHTML=(d.warn||[]).join(' ｜ ');return;}
+  const active=document.activeElement,focusRow=active?.matches?.('tr[id^="pk_"]')?active.id:null;
+  document.getElementById('dd').textContent=`股池数据日 ${d.data_date}`;
+  document.getElementById('st').textContent=
+   `${d.taken_at} · 源 ${d.src} · ${d.n_snap} 只 · 市场中位 ${f(d.mkt_med_pct,'%')} · `+
+   `${d.slot}${d.standard?'':'（非标）'} · ${d.clock_hint.split('——')[0]}`+
+   (_age(d)>60?` · 快照已过去 ${Math.round(_age(d))} 秒`:'');
+  document.getElementById('wn').innerHTML=(d.warn||[]).join(' ｜ ');
+  if(d.ths_map){window.THSMAP=d.ths_map;}
+  if(d.zt_codes){window.ZTSET=new Set(d.zt_codes.map(String));}
+  if(d.amt_chain){window.AMT=d.amt_chain;window.AMT_AT=d.amt_chain_at||'';}
+  if(d.flow_em){window.FLOW_EM=d.flow_em;}
+  bindCand();
+  const _wn=document.getElementById('watchn');
+  if(_wn&&d.watch_n!==undefined)_wn.innerHTML=d.watch_n?`<b style="color:#e8b96a">今日已记录 ${d.watch_n} 只候选</b> ｜ `:'';
+  if(d.cross_live){window.CROSS=d.cross_live;}
+  try{renderLib(d.lib||{})}catch(e){}
+  /* 侧栏速读 + 时刻（滚动时始终可见——「短时间全面了解」的锚点） */
+  const _dd=d.dual||{},_L=_dd['灯']||{},_A=_dd.A||{},_B=_dd.B||{};
+  const _sq=document.getElementById('squick');
+  if(_sq)_sq.innerHTML=
+   `<span class="sl">组合灯</span><span class="sch" style="background:${_L['色']||'#5a6270'}">${_L['名']||'—'}</span>`+
+   `<span class="sl">涨停 / 炸板率</span><b>${_A['涨停']??'—'}</b> 家 / <b>${_A['炸板率']??'—'}%</b>`+
+   `<span class="sl">一进二 / 首板溢价</span><b>${_A['一进二']!=null?_A['一进二']+'%':'—'}</b> / <b>${_A['首板溢价']!=null?(_A['首板溢价']>0?'+':'')+_A['首板溢价']+'%':'—'}</b>`+
+   `<span class="sl">最强链</span>${_B['top链']||'—'}`+
+   (d.cm_cov?`<span class="sl">概念归位</span>${d.cm_cov.total-d.cm_cov.todo}/${d.cm_cov.total}（待归类 ${d.cm_cov.todo}）`:'');
+  const _st2=document.getElementById('stime');if(_st2)_st2.textContent=d.taken_at||'';
+  const _bl=document.getElementById('blamp');
+  if(_bl)_bl.innerHTML=_L['名']?`<span class="sch" style="background:${_L['色']||'#5a6270'};display:inline-block">${_L['名']}</span>`:'';
+  /* 吸顶细条同步（2026-10-24）：滚动时只剩这一行，时间/指数/情绪不能跟着页头滚走 */
+  const se0=d.sentiment||{};
+  document.getElementById('bst').textContent=
+   `${d.taken_at} · ${d.slot}${d.standard?'':'（非标）'} · ${d.n_snap} 只`+
+   (_age(d)>60?` · 快照已过去 ${Math.round(_age(d))} 秒`:'');
+  document.getElementById('bidx').innerHTML=(d.indices||[])
+   .map(x=>{const c=x.pct>0?'up':x.pct<0?'dn':'';return `${x.name} <span class="${c}">${x.pct>0?'+':''}${x.pct}%</span>`;}).join('  ');
+  document.getElementById('bsent').innerHTML= se0['涨停']!==undefined?
+   `涨停 <b>${se0['涨停']}</b> · 炸板 <b>${se0['炸板']}</b> · 跌停 <b>${se0['跌停']}</b> · 最高 <b>${Math.trunc(se0['最高连板']||0)}板</b>`:'';
+  const r=d.focus.filter(x=>x.exc!==null).sort((a,b)=>a.rank-b.rank);
+  const pre=(x)=>{const p=x.pre||{};return [f(p.pre_rank),f(p.pre_zljlr,'亿'),f(p.pre_ret5,'%'),f(p.pre_run),`${f(p.pre_cont)}<br>${f(p.pre_lc)}`];};
+  const tb1row=(x)=>{const p=pre(x);return `<tr class="${{'重点':'t-zd','观察':'t-gc','环节':'t-hj'}[x.tier]}"><td>${tag(x.tier)}</td>`+
+   `<td>${x.name}</td><td>${f(x.eq_pct,'%')}</td><td>${f(x.exc,'%')}</td><td>${x.zt}</td>`+
+   `<td>${lad(x.ladder)}</td>`+
+   `<td>${f(x.ups)}</td><td>${f(x.lb)}</td><td>${f(x.zljlr_yi,'亿')}</td>`+
+   `<td>#${x.pre_rank}→#${x.rank} ${arr(x.delta)}</td>`+
+   p.map(v=>`<td class="pre">${v}</td>`).join('')+'</tr>';};
+  /* 2026-10-25 用户要求：题材很多同属一个大类 → 像盘口质量那样先按链分组、链内再按环节细分 */
+  let _h1=row(['档位','题材','涨','超额','涨停','梯队','涨股比','量比','订单净流向','盘前→现在',
+        '盘前·排名','盘前·订单净流向','盘前·自算5日','盘前·连胜','盘前·连续性/生命周期']);
+  const _tc=d.theme_chain||{};
+  if(!Object.keys(_tc).length){_h1+=r.map(tb1row).join('');}
+  else{
+    const gm=new Map();
+    r.forEach(x=>{const cs=_tc[x.name]||[];const ch=cs[0]||'（未归链）';
+      const sg=(cs[1]&&String(cs[1]).indexOf('（')<0)?cs[1]:'—';
+      if(!gm.has(ch))gm.set(ch,new Map());
+      const m=gm.get(ch);if(!m.has(sg))m.set(sg,[]);m.get(sg).push(x);});
+    const gs=[];
+    gm.forEach((m,ch)=>{const a2=[];m.forEach(v=>a2.push(...v));
+      gs.push({ch,m,arr:a2,zt:a2.reduce((s,x)=>s+(x.zt||0),0),
+               exc:Math.max(...a2.map(x=>x.exc||0)),n:a2.length});});
+    gs.sort((a,b)=>b.zt-a.zt||b.exc-a.exc);
+    gs.forEach(g=>{
+      _h1+=`<tr class="gh h2"><td colspan="15">◤ ${g.ch}<span class="ghn"> ${g.n} 条 · 涨停标签合计 ${g.zt}（可重叠） · 最高超额 ${f(g.exc,'%')}</span></td></tr>`;
+      const ss=[];g.m.forEach((xs,sg)=>ss.push({sg,xs,exc:Math.max(...xs.map(x=>x.exc||0))}));
+      ss.sort((a,b)=>b.exc-a.exc);
+      ss.forEach(o=>{
+        if(o.sg!=='—')_h1+=`<tr class="gs"><td colspan="15">· ${o.sg}<span class="ghn"> ${o.xs.length} 条 · 最高超额 ${f(o.exc,'%')}</span></td></tr>`;
+        _h1+=o.xs.map(tb1row).join('');
+      });
+    });
+  }
+  document.getElementById('tb1').innerHTML=_h1;
+  const ix=d.indices||[];
+  document.getElementById('idx').innerHTML= ix.length?
+   ix.map(x=>{const c=x.pct>0?'up':x.pct<0?'dn':'';return `${x.name} <span class="${c}">${x.price}（${x.pct>0?'+':''}${x.pct}%）</span>`;}).join(' · ') : '';
+  const se=d.sentiment||{};
+  document.getElementById('sent').innerHTML= se['涨停']!==undefined ?
+   `情绪条 · 涨停 <b>${se['涨停']}</b> · 炸板 <b>${se['炸板']}</b>（率 <b>${se['炸板率']}%</b> = 炸板池 ${se['炸板池']??'—'} + 回封 ${se['回封']??'—'}）· 跌停 <b>${se['跌停']}</b>（封死 ${se['封死跌停']??'—'}）· 最高 <b>${Math.trunc(se['最高连板']||0)}板</b> · 连板家数 <b>${se['连板家数']}</b>` : '';
+  const pl=(d.pool_log||[]).map(x=>`${x.label} ${x.ok?'✓':'✗'} ${x.at}(${x.sec}s)`).join(' · ');
+  document.getElementById('pool').innerHTML=
+   `<b>股池自动更新</b>（四时点盘中版 + 收盘最终版）｜${pl||'今日暂无盘中更新'}｜最终股池：${d.final_note||'—'}`;
+  document.getElementById('arch').innerHTML=
+   `今日已落档时点：${(d.archived||[]).join('、')||'（暂无——标准时点窗口内自动落档）'}`;
+  if(!d.research){
+  const cand=d.candidates||[];
+  document.getElementById('h2m').textContent=
+   `机会候选（🔥已动 ${d.movers.length} + 💤潜伏 ${d.lurkers.length} = ${cand.length} 只 · 状态互斥）`;
+  /* 2026-10-25 二改（用户要求）：候选表也按「场景链（大类）→ 环节（细分）」分组，
+     组头给 只数/已动潜伏/梯队成立/最高成色；组内先已动（梯队→成色→涨幅）再潜伏（低位→量比） */
+  const posRk=x=>x['位置']==='低位'?0:x['位置']==='中位'?1:2;
+  const candRow=x=>{const st=x['状态']==='已动'
+      ?'<span class="rl" style="background:#b04a4a">🔥已动</span>'
+      :'<span class="rl" style="background:#3a7abf">💤潜伏</span>';
+    const vl=x['量比注']||f(x['量比']);
+    const r5=x.ret5!==undefined?f(x.ret5,'%'):'—';
+    const pos=x['位置']?`<span class="pos ${x['位置']==='低位'?'p-lo':x['位置']==='中位'?'p-md':'p-hi'}">${x['位置']}</span>`:'—';
+    const off=chainOff(x);
+    const cs=x['成色']!=null?` <span class="pos p-md">成色${x['成色']}</span>`:'';
+    return `<tr class="${x['池层']==='核心'?'t-zd':'t-gc'}"><td>${st}${cs}</td><td>${tag(x['池层'])}</td>`+
+     `<td>${x.name}</td>${cCore(x)}${cAttr(x)}${cLay(x)}${cBiz(x)}${sceneCell(x,{head:false,off:off})}<td>${f(x.pct,'%')}</td>`+
+     `<td>${vl}</td><td>${r5}</td><td>${brk(x['突破'])}</td><td>${f(x['涨速'])}</td>`+
+     `<td>${f(x['额亿'],'亿')}</td><td>${pos}</td></tr>`;};
+  const _gm2=new Map();
+  cand.forEach(x=>{const p=PF(x);const ch=x['场景链']||p.chain_only||'（未归链）';
+    const sg=segOfScene(x);
+    if(!_gm2.has(ch))_gm2.set(ch,new Map());
+    const m=_gm2.get(ch);if(!m.has(sg))m.set(sg,[]);m.get(sg).push(x);});
+  const _gs2=[];_gm2.forEach((m,ch)=>{const a2=[];m.forEach(v=>a2.push(...v));
+    _gs2.push({ch,m,arr:a2,n:a2.length,fired:a2.filter(x=>x['状态']==='已动').length,
+      est:a2.filter(x=>x['梯队']==='成立').length,best:Math.max(...a2.map(x=>x['成色']||0))});});
+  _gs2.sort((a,b)=>b.n-a.n||b.best-a.best);
+  let _h2=row(['状态','池层','名称','核心业务（占比·毛利）','今日归因（分）','错位度','主业链·环节','场景（主归属）·梯队','涨幅','量能','5日','突破','涨速','额(亿)','位置']);
+  _gs2.forEach(g=>{
+    _h2+=`<tr class="gh h2"><td colspan="15">◤ ${g.ch}<span class="ghn"> ${g.n} 只 · 已动${g.fired}/潜伏${g.n-g.fired} · 梯队成立${g.est} · 最高成色 ${g.best||'—'}</span></td></tr>`;
+    const ss=[];g.m.forEach((xs,sg)=>{
+      xs.sort((a,b)=>(a['状态']==='已动'?0:1)-(b['状态']==='已动'?0:1)
+        ||((b['成色']||0)-(a['成色']||0))||(posRk(a)-posRk(b))||((b.pct||0)-(a.pct||0)));
+      ss.push({sg,xs,best:Math.max(...xs.map(x=>x['成色']||0))});});
+    ss.sort((a,b)=>b.xs.length-a.xs.length||b.best-a.best);
+    ss.forEach(o=>{
+      if(o.sg!=='—')_h2+=`<tr class="gs"><td colspan="15">· ${o.sg}<span class="ghn"> ${o.xs.length} 只 · 最高成色 ${o.best||'—'}</span></td></tr>`;
+      _h2+=o.xs.map(candRow).join('');
+    });
+  });
+  document.getElementById('tb2').innerHTML=_h2;
+  }
+  const a=d.alignment;
+  document.getElementById('al').innerHTML=
+   `盘前 top10 重合 <b>${a.overlap}</b> · 在盘前全部焦点内 <b>${a.overlap40}</b>/10 → ${a.verdict}`;
+  const cu=d.catchup||[];
+  /* 2026-10-25 二改（用户要求）：补涨表同 tb2——按「场景链（大类）→ 环节」分组，组头给只数/场景数/最高成色 */
+  const cuRow=(x)=>{const off=chainOff(x);
+    return `<tr class="${x['池层']==='核心'?'t-zd':'t-gc'}"><td>${tag(x['池层'])}</td>`+
+    `<td>${x.name}</td>${cCore(x)}${cAttr(x)}${cLay(x)}${cBiz(x)}${sceneCell(x,{head:false,off:off})}`+
+    /* 龙头格自带桶名（2026-10-24 用户把金百泽行的龙头「大业股份」误读成 PCB 链的人）：
+       没有桶名，读者会拿左边的主业链去解释这个名字——加上「·机器人概念桶」就从根上断掉误读。
+       2026-10-25 优化：龙头炸板次数 ⚠（炸板不回封＝补涨逻辑失效的先行信号）＋桶内涨停家数 */
+    `<td>${x['龙头']||'—'}${x['龙头板']?` <span class="mt">${x['龙头板']}板</span>`:''}`+
+    `${x['龙头炸板']?` <span class="apx" title="场景龙头今日炸板 ${x['龙头炸板']} 次——龙头炸板不回封则补涨逻辑失效（纪律：龙头断板当天补涨必须走）">⚠炸${x['龙头炸板']}</span>`:''}`+
+    `${x['场景涨停']?` <span class="mt">·桶内涨停${x['场景涨停']}家</span>`:''}`+
+    `${x['场景']?` <span class="mt">·${x['场景']}桶</span>`:''}`+
+    `${x['龙头']&&x['龙头']===x.name?' <span class="mt">（本票）</span>':''}</td>`+
+    `<td>${f(x.pct,'%')}</td><td>${f(x.ret5,'%')}</td><td>${f(x['换手'])}</td></tr>`;};
+  let _h5=row(['池层','名称','核心业务（占比·毛利）','今日归因（分）','错位度','主业链·环节','补涨场景（主归属·家数·判定）','场景龙头（属哪个桶）','涨幅','5日','换手']);
+  if(!cu.length){
+    _h5+='<tr><td colspan="11">（暂无——需题材前排已起且池内有低位未涨票）</td></tr>';
+  }else{
+    const _gm5=new Map();
+    cu.forEach(x=>{const p=PF(x);const ch=x['场景链']||p.chain_only||'（未归链）';
+      const sg=segOfScene(x);
+      if(!_gm5.has(ch))_gm5.set(ch,new Map());
+      const m=_gm5.get(ch);if(!m.has(sg))m.set(sg,[]);m.get(sg).push(x);});
+    const _gs5=[];_gm5.forEach((m,ch)=>{const a5=[];m.forEach(v=>a5.push(...v));
+      const scenes=new Set(a5.map(x=>x['场景']||''));
+      _gs5.push({ch,m,n:a5.length,scenes:scenes.size,
+        best:Math.max(...a5.map(x=>x['成色']||0)),
+        ztmax:Math.max(...a5.map(x=>x['场景涨停']||0))});});
+    _gs5.sort((a,b)=>b.ztmax-a.ztmax||b.n-a.n);
+    _gs5.forEach(g=>{
+      _h5+=`<tr class="gh h2"><td colspan="11">◤ ${g.ch}<span class="ghn"> ${g.n} 只 · ${g.scenes} 个场景 · 场景最多涨停 ${g.ztmax||'—'} 家 · 最高成色 ${g.best||'—'}</span></td></tr>`;
+      const ss=[];g.m.forEach((xs,sg)=>ss.push({sg,xs,
+        best:Math.max(...xs.map(x=>x['成色']||0))}));
+      ss.sort((a,b)=>b.xs.length-a.xs.length||b.best-a.best);
+      ss.forEach(o=>{
+        if(o.sg!=='—')_h5+=`<tr class="gs"><td colspan="11">· ${o.sg}<span class="ghn"> ${o.xs.length} 只 · 最高成色 ${o.best||'—'}</span></td></tr>`;
+        _h5+=o.xs.map(cuRow).join('');
+      });
+    });
+  }
+  document.getElementById('tb5').innerHTML=_h5;
+  const pk=d.pankou||[];
+  window.PK=pk;
+  window._TC=d.theme_chain||{};
+  window._CLAN=d.name_clan||{};
+  window._CCLS=d.concept_cls||{};
+  renderDual(d.dual);
+  document.getElementById('h2p').textContent=
+   `盘口质量（显示 ${pk.length} 只 / 全市场涨停 ${(d.sentiment||{})['涨停']??'—'} 只 · 肉肉 4.1/4.2/5.2）`;
+  CURRENT=d;
+  renderPk();
+  CONNECTION_OK=true;updateHealth();
+  renderWatches();
+  if(typeof onProductState==='function')onProductState(d);
+  if(focusRow)document.getElementById(focusRow)?.focus({preventScroll:true});
+ }catch(e){CONNECTION_OK=false;updateHealth();document.getElementById('st').textContent='刷新失败，正在保留上次读数；请核对服务状态。';}finally{REFRESHING=false;}
+}
+/* ── 双闸对照（v2，2026-10-25 方案；C 级草案）── 闸A/闸B 两卡平级并排，组合判定条在下 ──
+   闸A＝市场级盘口质量（答"能不能做/给多少仓"）；闸B＝板块级方向强度（答"做哪里"，
+   板块链/环节/题材三层各列最强者）。两闸平级互验（熔炼 3.5）；A 闸极端弱时一票否决。
+   只出读数与组合命名，不是买卖指令。*/
+function chip(k,v,cls){return `<span class="chip ${cls||''}">${k}<b>${v==null||v===''?'—':v}</b></span>`;}
+/* 闸B 榜单 chip：可点击——按维度切到盘口表对应分组并跳转高亮（2026-10-25 用户要求） */
+function rankChips(arr,mode){const RK='①②③④⑤';return (arr||[]).map((x,i)=>
+ `<span class="chip ${i===0?'hi':''}" style="cursor:pointer" onclick="jumpGrp('${mode}','${x[0]}')">${RK[i]||''} ${x[0]}<b>${x[1]}</b></span>`
+).join('')||'—';}
+/* 闸B 榜 → 盘口表：按维度切到对应分组模式（链/环节/题材），滚动到该组并高亮 */
+function jumpGrp(mode,name){
+ GRP=mode;mountCtl();renderPk();
+ setTimeout(()=>{
+  const tb=document.getElementById('tb4');
+  let hit=null;
+  if(tb&&tb.querySelectorAll){
+   const hs=tb.querySelectorAll('tr.gh');
+   for(let i=0;i<hs.length;i++){const t=hs[i].textContent||'';
+     if(t.indexOf(name)>=0){hit=hs[i];break;}}
+  }
+  if(hit){
+   if(hit.scrollIntoView)hit.scrollIntoView({behavior:'smooth',block:'center'});
+   hit.classList.add('hlrow');setTimeout(()=>hit.classList.remove('hlrow'),2600);
+  }else{
+   const el=document.getElementById('h2p');
+   if(el&&el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+ },80);
+}
+function distChips(arr,unit){return (arr||[]).filter(x=>x[1]>0).map(x=>chip(x[0],x[1]+(unit||'家'),'')).join('')||'—';}
+/* ══════ 涨停结构面板（2026-10-25 调研后重构）══════
+   依据：信息分层（KPI 摘要 → 分布图 → 明细表）、渐进式披露、分布用条形看形状、
+   点击条形下钻＋一键重置。原先把 82 行明细塞进 KPI 卡里＝把第三层塞进第一层，
+   结果两卡失衡、信息过载——现在：双闸卡只留读数，结构面板单独承载分布＋明细。*/
+let DRILL={dim:'',lab:''};
+let TABLE_OPEN=true;
+/* 明细表排序（2026-10-25 用户要求：每一列都能排；名称支持「按字辈族」——
+   炒名字/字辈/谐音/生肖是 A 股真实存在的短线路径，族谱见 scripts/name_clan.py）*/
+let SORT={col:'score',mode:'desc'};
+const SMODES={name:['asc','desc','clan'],theme:['group','asc','desc'],
+              seg:['group','asc','desc'],ladder:['desc','asc'],fbt:['asc','desc'],score:['desc','asc']};
+function sortBy(col){
+ const ms=SMODES[col]||['desc','asc'];
+ const i=(SORT.col===col)?ms.indexOf(SORT.mode):-1;
+ SORT={col:col,mode:ms[(i+1)%ms.length]};
+ renderStruct();
+}
+function sortMark(col){
+ if(SORT.col!==col)return '';
+ const m=SORT.mode;
+ return m==='clan'?' <span class="mt">⭮族</span>':m==='group'?' <span class="mt">▤组</span>':m==='asc'?' ▲':' ▼';
+}
+function clanOf(c){const g=(window._CLAN||{})[c]||{};return g['族']||'';}
+function clanTags(c){const g=(window._CLAN||{})[c]||{};const t=(g['标签']||[]).slice(0,3);
+ return t.length?` <span class="mt">${t.join('·')}</span>`:'';}          // 明细表默认展开（用户 2026-10-25 要求；点「折叠」收起）
+function toggleTable(){TABLE_OPEN=!TABLE_OPEN;renderStruct();}
+function drill(dim,lab){
+ DRILL=(DRILL.dim===dim&&DRILL.lab===lab)?{dim:'',lab:''}:{dim:dim,lab:lab};
+ renderStruct();
+}
+function jumpPk(c){
+ const el=document.getElementById('pk_'+c);
+ if(!el)return;
+ if(el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'center'});
+ if(el.classList){el.classList.add('hlrow');setTimeout(()=>el.classList.remove('hlrow'),2400);}
+}
+/* 横向条形（分布形状一眼可见；0 值也画，形状不断裂） */
+function bars(arr,dim,unit,total){
+ const mx=Math.max(1,...(arr||[]).map(x=>x[1]||0));
+ return `<div class="bars">`+(arr||[]).map(x=>{
+  const on=(DRILL.dim===dim&&DRILL.lab===x[0]);
+  const w=Math.max(0,Math.round((x[1]||0)/mx*100));
+  return `<div class="bar${on?' on':''}" role="button" tabindex="0" aria-pressed="${on}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" onclick="drill('${dim}','${x[0]}')">`+
+   `<span class="bl">${x[0]}</span><span class="btrack"><span class="bfill" style="width:${w}%"></span></span>`+
+   `<span class="bn">${x[1]||0}${unit||''}${total?`<em class="bpct">${Math.round((x[1]||0)/total*100)}%</em>`:''}</span></div>`;}).join('')+`</div>`;
+}
+function renderStruct(){
+ const box=document.getElementById('struct');if(!box)return;
+ const d=window._DUAL||{},A=d.A||{};
+ const pk=window.PK||[];
+ const segOfLoc=z=>{const p=String(z['定位']||'').split('·');return p.length>1?p[1]:'';};
+ const lbTxt=v=>{const n=parseInt(v);return isNaN(n)?'—':(n>1?n+'板':'首板');};
+ const mk=z=>({c:z.code,n:z.name||'—',t:z['题材']||'',sg:segOfLoc(z),
+   lb:lbTxt(z['连板']),fs:z['首封']||'',p:z['涨幅'],cs:z['成色']});
+ let rows,head;
+ if(!DRILL.dim){
+   rows=pk.map(mk);
+   head=`<b>全部涨停 ${rows.length} 只</b> · 按成色排序 · 点上方条形筛选`;
+ }else{
+   const det=DRILL.dim==='ladder'?(A['梯队明细']||{}):DRILL.dim==='fbt'?(A['首封明细']||{}):(A['首封未知明细']||[]);
+   const arr=Array.isArray(det)?det:(det[DRILL.lab]||[]);
+   const pm={};pk.forEach(z=>{pm[z.code]=z;});
+   rows=arr.map(pair=>{const z=pm[pair[0]];return z?mk(z):{c:pair[0],n:pair[1]||pair[0],t:'',sg:'',lb:'',fs:'',p:null,cs:null};});
+   const nm=DRILL.dim==='ladder'?'连板梯队':DRILL.dim==='fbt'?'首封时段':'首封未知';
+   head=`${nm} · <b>${DRILL.lab||''}</b> ${rows.length} 只 · 再点该条形或点「重置」回全量`;
+ }
+ rows.sort((a,b)=>((b.cs??0)-(a.cs??0))||((b.p??0)-(a.p??0)));
+ const TOT=(A['涨停']||0)||1;
+ const chart=(title,arr,dim)=>`<div>`+
+   `<div class="dualnote" style="margin:0 0 5px">${title}</div>${bars(arr,dim,'',TOT)}</div>`;
+ box.innerHTML=
+  `<div class="structone"><div class="so-hd">涨停结构 · 高度 × 时段`+
+   `<span>括号为占全部 ${A['涨停']??'—'} 家的比例 · 点条形筛选</span></div>`+
+   `<div class="structgrid">`+
+    chart('连板梯队（家数）',A['梯队长']||[],'ladder')+
+    chart('首封时段（家数 · 越早越强）',A['首封分布']||[],'fbt')+
+  `</div></div>`+
+  `<div class="dualnote" style="margin:10px 0 4px">${head}`+
+   `<a class="dmore" href="javascript:void(0)" onclick="drillAll()">重置（全部）</a>`+
+   `<a class="dmore" href="javascript:void(0)" onclick="toggleTable()">${TABLE_OPEN?'折叠明细':'展开明细'}</a></div>`+
+  (TABLE_OPEN?`<div class="drillwrap" style="max-height:250px"><table class="drilltab"><thead><tr>`+
+   [`name:名称`,`theme:题材（主归属）`,`seg:环节`,`ladder:梯队`,`fbt:首封`,`score:成色`]
+     .map(x=>{const i=x.indexOf(':');return `<th class="sortth" onclick="sortBy('${x.slice(0,i)}')" `+
+       `title="点列头切换排序（名称含「按字辈族」模式）">${x.slice(i+1)}${sortMark(x.slice(0,i))}</th>`;}).join('')+
+   `</tr></thead><tbody>`+ _tbBody(rows) +`</tbody></table></div>`:'');
+}
+function _tbBody(rows){
+ if(!rows.length)return '<tr><td colspan="6">（无）</td></tr>';
+ const rowH=r=>`<tr><td><a class="dname" href="#pk_${r.c}" onclick="jumpPk('${r.c}');return false;">${r.n}</a>${clanTags(r.c)}</td>`+
+   `<td>${r.t||'—'}</td><td class="mt">${r.sg||'—'}</td><td class="mt">${r.lb||'—'}</td><td class="mt">${r.fs||'—'}</td>`+
+   `<td>${r.cs??'—'}</td></tr>`;
+ const num=v=>{const m=String(v).match(/([0-9]+)/);return m?parseInt(m[1]):1;};
+ const gsep=(k,n,best)=>`<tr class="gs"><td colspan="6">◤ ${k}（${n} 只）<span class="ghn"> 最高成色 ${best||'—'}</span></td></tr>`;
+ const grp=(keyOf,unlab)=>{
+   const m=new Map();
+   rows.forEach(r=>{const k=keyOf(r)||unlab;if(!m.has(k))m.set(k,[]);m.get(k).push(r);});
+   const gs=[...m.entries()].map(([k,arr])=>({k,arr,best:Math.max(...arr.map(x=>x.cs??0))}));
+   gs.sort((a,b)=>((a.k===unlab?1:0)-(b.k===unlab?1:0))||b.arr.length-a.arr.length||b.best-a.best);
+   return gs.map(g=>gsep(g.k,g.arr.length,g.best)+g.arr.sort((x,y)=>(y.cs??0)-(x.cs??0)||((y.p??0)-(x.p??0))).map(rowH).join('')).join('');
+ };
+ if(SORT.col==='name'&&SORT.mode==='clan') return grp(r=>clanOf(r.c),'（未成族）');
+ if(SORT.col==='theme'&&SORT.mode==='group') return grp(r=>r.t,'（无题材）');
+ if(SORT.col==='seg'&&SORT.mode==='group') return grp(r=>r.sg,'—');
+ const cmp={
+  name:(a,b)=>String(a.n).localeCompare(String(b.n),'zh-Hans-CN'),
+  theme:(a,b)=>String(a.t).localeCompare(String(b.t),'zh-Hans-CN'),
+  seg:(a,b)=>String(a.sg).localeCompare(String(b.sg),'zh-Hans-CN'),
+  ladder:(a,b)=>num(a.lb)-num(b.lb),
+  fbt:(a,b)=>String(a.fs).localeCompare(String(b.fs)),
+  score:(a,b)=>(a.cs??0)-(b.cs??0)
+ }[SORT.col]||((a,b)=>(a.cs??0)-(b.cs??0));
+ const dir=SORT.mode==='asc'?1:-1;
+ rows.sort((a,b)=>cmp(a,b)*dir);
+ return rows.map(rowH).join('');
+}
+function drillAll(){DRILL={dim:'',lab:''};renderStruct();}
+function pctS(v){return v==null?null:(v>0?'+':'')+v+'%';}
+function renderDual(d){
+ const eA=document.getElementById('dualA'),eB=document.getElementById('dualB'),eC=document.getElementById('dualcombo');
+ if(!eA)return;
+ if(!d||!d.A){eA.innerHTML=eB.innerHTML='';if(eC)eC.textContent=d?.note||'等待可核验市场样本';return;}
+ window._DUAL=d;
+ const A=d.A,B=d.B,L=d['灯']||{};
+ const ajc={'强':'#4e7a33','中':'#6b6b73','弱':'#a32d2d'}[A['判定']]||'#6b6b73';
+ const bjc={'集中':'#4e7a33','中':'#6b6b73','分散':'#a4742a'}[B['判定']]||'#6b6b73';
+ /* 闸A 重排（2026-10-27 用户：20 个同权重 chip 一扫过去看不出重点）
+    → 大数（涨停家数）+ 三条相对量表（炸板率/一进二/首板溢价）+ 四个关键计数
+    量表颜色只在突破阈值时才染色（好=绿、坏=红），中性保持灰——不制造无意义的红绿。*/
+ const _mtr=(lab,v,o)=>{
+  o=o||{};
+  const has=(v!=null&&!isNaN(v));
+  const mx=o.max||100;
+  const w=has?Math.max(2,Math.min(100,Math.abs(v)/mx*100)):0;
+  const cls=!has?'':(o.inv?(v>o.bad?'bad':(v<=o.good?'good':'')):(v>=o.good?'good':(v<o.bad?'bad':'')));
+  return `<div class="mtr ${cls}"${o.tip?` title="${o.tip}"`:''}><span class="ml">${lab}</span>`+
+   `<span class="mtrack"><i style="width:${w}%"></i></span>`+
+   `<em>${has?((o.sign&&v>0?'+':'')+v+(o.unit||'')):'—'}</em></div>`;
+ };
+ const _f=(k,v,cls)=>`<span class="fct ${cls||''}">${k}<b>${v==null?'—':v}</b></span>`;
+ eA.innerHTML=`
+  <h3>闸A 盘口质量（市场级 → 能不能做）　<span style="color:${ajc}">${A['判定']}</span><span style="color:#6f7885;font-weight:400">　分 ${A['分']??'—'}</span></h3>
+  <div class="gA">
+   <div class="gA-big">
+    <b>${A['涨停']??'—'}</b><i>家涨停</i>
+    <u>近5日均 ${A['近5日均涨停']??'—'}${A['今日倍数']!=null?' · ×'+A['今日倍数']:''}</u>
+   </div>
+   <div class="gA-mtr">
+    ${_mtr('炸板率',A['炸板率'],{max:100,good:20,bad:40,inv:true,unit:'%',tip:'炸板(含回封)/尝试封板'})}
+    ${_mtr('一进二',A['一进二'],{max:100,good:50,bad:30,unit:'%',tip:'样本 n='+(A['一进二样本']??'—')})}
+    ${_mtr('首板溢价',A['首板溢价'],{max:6,good:3,bad:0,unit:'%',sign:true,tip:'昨日首板今日等权涨幅'})}
+   </div>
+   <div class="gA-kpi">
+    <div>最高连板<b>${A['最高连板']??'—'} 板</b></div>
+    <div>连板家数<b>${A['连板家数']??'—'}</b></div>
+    <div>大面 ≤−8%<b>${A['大面']??'—'}</b></div>
+    <div>跌停/封死<b>${A['跌停']??'—'}/${A['封死跌停']??'—'}</b></div>
+   </div>
+  </div>
+  <div class="gA-facts">
+   ${_f('昨日涨停（'+(A['昨日日期']||'—')+'）',(A['昨日涨停']??'—')+' 家')}
+   ${_f('二进三以上',(A['二进三以上']??'—')+(A['连板晋级样本']?'%（n='+A['连板晋级样本']+'）':''))}
+   ${_f('连板溢价',pctS(A['连板溢价']),(A['连板溢价']!=null&&A['连板溢价']>=0)?'good':'bad')}
+   ${_f('回封率',A['回封率']!=null?A['回封率']+'%':'—')}
+   ${_f('梯队形状',A['梯队形状']||'—',(A['梯队形状']&&A['梯队形状'].indexOf('菱形')>=0)?'bad':'')}
+   ${_f('首封 上午/下午',(A['上午封板']??'—')+' / '+(A['下午封板']??'—'))}
+   ${_f('首封未知',A['首封未知']??'—')}
+  </div>
+  <div class="structinner" id="struct"></div>
+  <div class="dualnote">A 闸评分构成：${A['构成']||'—'}　·　三条量表＝相对量纲（越靠右越极端），点下方条形可下钻到个股</div>`;
+ renderStruct();
+ eB.innerHTML=`
+  <h3>闸B 方向强度（板块级 → 做哪里）　<span style="color:${bjc}">${B['判定']}</span></h3>
+  <div class="dualnote" style="margin:0 0 4px">链条强度</div>
+  <div class="chips">${rankChips(B['链榜'],'chain')}</div>
+  <div class="dualnote" style="margin:7px 0 4px">环节强度</div>
+  <div class="chips">${rankChips(B['环节榜'],'seg')}</div>
+  <div class="dualnote" style="margin:7px 0 4px">题材强度</div>
+  <div class="chips">${rankChips(B['题材榜'],'theme')}</div>
+  <div class="chips" style="margin-top:9px">
+   ${chip('TOP1 占全市场涨停',B['集中度']!=null?B['集中度']+'%':null)}
+   ${chip('龙头',(B['龙头']?B['龙头']+(B['龙头板']?'·'+B['龙头板']+'板':''):null))}
+   ${chip('梯队',B['梯队判定']||null)}
+   ${chip('扩散（最强题材成员涨超5%）',B['扩散']||null)}
+  </div>
+  <div class="dualnote">三个维度各出 TOP5——第 1 名之外看第 2—5 名，才分得清「一家独大」还是「多点开花」；<b>口径＝归因计数·每票只算一次</b>，与下方盘口表「归因链→环节」分组逐一对得上（点榜单直接跳过去）；龙头＝该链内连板最高，梯队＝该链涨停家数（≥3 成立/2 偏薄/1 独木）</div>`;
+ if(eC)eC.innerHTML=`
+  <span class="duallamp" style="background:${L['色']||'#5a6270'}">组合：${L['名']||'—'}</span>
+  <span class="meta" style="margin-left:10px">闸A × 闸B 平级互验（熔炼 3.5）· 判定全部 C 级草案</span>
+  <div class="dualact">研究边界：组合灯只描述市场与方向状态。先核验环境、题材、个股证据及独立预案；未齐继续观察，仓位以预案约束为准。</div>
+  ${(d['背离']||[]).map(f=>`<div class="dualflag">背离：${f}</div>`).join('')}
+  <div class="dualnote">${d['note']?('数据说明：'+d['note']+'。'):''}阈值全为经验统计（C 级），只作纵向对比不作绝对判据；本条只给读数与组合命名，不构成交易指令。</div>`;
+}
+tick(); loadWatches(); setInterval(tick, 15000); setInterval(loadWatches, 15000); setInterval(updateHealth, 1000);
+</script><script src="/product-v2.js"></script></body></html>

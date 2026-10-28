@@ -182,9 +182,9 @@ def run_partition(c, source, day, action):
         return False
 
 
-def refresh_calendar(c, pro, end=None):
+def refresh_calendar(c, pro, end=None, start=None):
     end = iso_date(end or now().date())
-    start = (dt.date.fromisoformat(end) - dt.timedelta(days=400)).isoformat()
+    start = iso_date(start) if start else (dt.date.fromisoformat(end) - dt.timedelta(days=400)).isoformat()
     frame = pro.trade_cal(exchange='SSE', start_date=date8(start), end_date=date8(end))
     if not {'cal_date', 'is_open', 'pretrade_date'} <= set(frame.columns):
         raise ProviderError('trade_cal: missing fields')

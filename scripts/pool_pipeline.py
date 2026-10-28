@@ -85,7 +85,7 @@ FIELDS = "f12,f14,f2,f3,f5,f6,f8,f10,f20,f21,f22,f24,f25,f100,f9,f23,f15,f16,f17
 # 一字板/T字板/地天板 全部判不出来（bar_forms 宁可返回空也不猜）。
 # 腾讯 qt.gtimg 一次可批量 60 只，含 开高低/昨收/量比/换手/市值/涨停价，正好补齐。
 def _tx_prefix(c):
-    if c[0] == '6':
+    if c[0] in ('5', '6'):
         return 'sh'
     if c[0] in ('4', '8', '9') and not c.startswith('30'):
         return 'bj'
